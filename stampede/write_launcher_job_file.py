@@ -10,7 +10,7 @@ def get_args():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-j', '--job-fp', help='job file to be written')
     arg_parser.add_argument('-i', '--input-dp', help='directory of input files')
-    # remaining arguments
+    # remaining arguments ?
     args = arg_parser.parse_args()
     return args
 
@@ -21,7 +21,7 @@ def write_launcher_job_file(job_fp, input_dp):
     reverse_read_file_glob = os.path.join(input_dp, '*_R2_*')
 
     forward_read_file_path_set = glob.glob(forward_read_file_glob)
-    reverse_read_file_path_set = glob,glob(reverse_read_file_glob)
+    reverse_read_file_path_set = glob.glob(reverse_read_file_glob)
 
     with open(job_fp, 'wt') as job_file:
         for forward_fp, reverse_fp in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
@@ -50,12 +50,18 @@ if __name__ == '__main__':
     write_launcher_job_file(**args.__dict__)
 
 
+import pytest
+
+
 def test_get_file_path_pairs():
 
     forward_read_files = ('/a/b/c_R1_d.fa', '/e/f/g_R1_h.fa', '/i/j/k_R1_l.fa')
     reverse_read_files = ('/a/b/c_R2_d.fa', '/e/f/g_R2_h.fa', '/i/j/k_R2_l.fa')
 
-    paired_files = set(get_file_path_pairs(forward_read_file_paths=forward_read_files, reverse_read_file_paths=reverse_read_files))
+    paired_files = set(
+        get_file_path_pairs(
+            forward_read_file_paths=forward_read_files,
+            reverse_read_file_paths=reverse_read_files))
 
     assert len(paired_files) == 3
     assert ('/a/b/c_R1_d.fa', '/a/b/c_R2_d.fa') in paired_files
@@ -63,4 +69,24 @@ def test_get_file_path_pairs():
     assert ('/i/j/k_R1_l.fa', '/i/j/k_R2_l.fa') in paired_files
 
 
-def test_
+def test_get_file_path_pairs_forward_reads_exception():
+    forward_read_files = ('/a/b/c_R1_d.fa', '/e/f/g_R1_h.fa')
+    reverse_read_files = ('/a/b/c_R2_d.fa', '/e/f/g_R2_h.fa', '/i/j/k_R2_l.fa')
+
+    with pytest.raises(Exception):
+        paired_files = set(
+            get_file_path_pairs(
+                forward_read_file_paths=forward_read_files,
+                reverse_read_file_paths=reverse_read_files))
+
+
+def test_get_file_path_pairs_reverse_reads_exception():
+    forward_read_files = ('/a/b/c_R1_d.fa', '/e/f/g_R1_h.fa', '/i/j/k_R1_l.fa')
+    reverse_read_files = ('/a/b/c_R2_d.fa', '/e/f/g_R2_h.fa')
+
+    with pytest.raises(Exception):
+        paired_files = set(
+            get_file_path_pairs(
+                forward_read_file_paths=forward_read_files,
+                reverse_read_file_paths=reverse_read_files))
+

@@ -31,6 +31,7 @@ from Bio import SeqIO
 def get_args():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-f', '--forward-reads-fp', help='path to a forward-read FASTQ file')
+    arg_parser.add_argument('-w', '--work-dp-template', help='template for working directory')
     args = arg_parser.parse_args()
     return args
 

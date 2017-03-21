@@ -5,7 +5,7 @@ source activate mu18SV4
 BIN=$( cd "$( dirname "$0" )" && pwd )
 
 $LAUNCHER_JOBFILE=${SLURM_JOB_ID}_launcher_jobfile
-python write_launcher_job_file.py -j ${LAUNCHER_JOBFILE} $!
+python write_launcher_job_file.py -j ${LAUNCHER_JOBFILE} -w ${SCRATCH}/work-${SLURM_JOB_ID}-{prefix}
 
 echo "Starting launcher"
 echo "  SLURM_JOB_NUM_NODES=$SLURM_JOB_NUM_NODES"
