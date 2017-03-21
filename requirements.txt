@@ -1,0 +1,7 @@
+cutadapt
+qiime>=1.9.1
+matplotlib>=2.0.0
+mock
+nose
+pytest
+subprocess32

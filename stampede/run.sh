@@ -1,0 +1,34 @@
+#!/bin/bash
+
+source activate mu18SV4
+
+BIN=$( cd "$( dirname "$0" )" && pwd )
+
+$LAUNCHER_JOBFILE=${SLURM_JOB_ID}_launcher_jobfile
+python write_launcher_job_file.py -j ${LAUNCHER_JOBFILE} $!
+
+echo "Starting launcher"
+echo "  SLURM_JOB_NUM_NODES=$SLURM_JOB_NUM_NODES"
+echo "  SLURM_NTASKS=$SLURM_NTASKS"
+echo "  SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
+echo "  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
+
+export LAUNCHER_DIR="$HOME/src/launcher"
+export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
+export LAUNCHER_WORKDIR=$SCRATCH/muscope-18SV4
+export LAUNCHER_RMI=SLURM
+export LAUNCHER_JOB_FILE=${LAUNCHER_JOBFILE}
+export LAUNCHER_NJOBS=$(cat ${LAUNCHER_JOBFILE} | wc -l)
+export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
+export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
+export LAUNCHER_PPN=`expr $SLURM_NTASKS`
+export LAUNCHER_SCHED=dynamic
+
+echo "  LAUNCHER_NJOBS=$LAUNCHER_NJOBS"
+echo "  LAUNCHER_NHOSTS=$LAUNCHER_NHOSTS"
+echo "  LAUNCHER_NPROCS=$LAUNCHER_NPROCS"
+echo "  LAUNCHER_PPN=$LAUNCHER_PPN"
+
+$LAUNCHER_DIR/paramrun
+echo "Ended launcher"
+
