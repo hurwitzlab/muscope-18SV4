@@ -8,7 +8,7 @@ BIN=$( cd "$( dirname "$0" )" && pwd )
 
 echo "BIN=${BIN}"
 
-LAUNCHER_JOBFILE="./${SLURM_JOB_ID}_launcher_jobfile"
+LAUNCHER_JOBFILE=${SLURM_JOB_ID}_launcher_jobfile
 echo ${LAUNCHER_JOBFILE}
 python write_launcher_job_file.py -i $1 -j ${LAUNCHER_JOBFILE} -w ${SCRATCH}/work-${SLURM_JOB_ID}-{prefix}
 
@@ -22,7 +22,7 @@ export LAUNCHER_DIR="$HOME/src/launcher"
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 export LAUNCHER_WORKDIR=$SCRATCH/muscope-18SV4
 export LAUNCHER_RMI=SLURM
-export LAUNCHER_JOB_FILE=${LAUNCHER_JOBFILE}
+export LAUNCHER_JOB_FILE=$BIN/${LAUNCHER_JOBFILE}
 export LAUNCHER_NJOBS=$(cat ${LAUNCHER_JOBFILE} | wc -l)
 export LAUNCHER_NHOSTS=$SLURM_JOB_NUM_NODES
 export LAUNCHER_NPROCS=`expr $SLURM_JOB_NUM_NODES \* $SLURM_NTASKS`
