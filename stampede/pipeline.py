@@ -82,18 +82,23 @@ def pipeline(forward_reads_fp, work_dp_template):
     uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
     chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
     final_fp = os.path.join(vsearch_dp, vsearch_filename)
-    output = subprocess.check_call(
-        ['vsearch',
-         '--uchime_ref', length_filtered_fp,
-         '--db', '/home/jklynch/host/project/muscope/pr2_gb203_version_4/pr2_gb203_version_4.5.fasta',
-         '--uchimeout', uchimeout_fp,
-         '--chimeras', chimeras_fp,
-         '--strand', 'plus',
-         '--nonchimeras', final_fp],
-        stderr=subprocess.STDOUT,
-        universal_newlines=True
-    )
-    print(output)
+    try:
+        output = subprocess.check_call(
+            ['vsearch',
+             '--uchime_ref', length_filtered_fp,
+             '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
+             '--uchimeout', uchimeout_fp,
+             '--chimeras', chimeras_fp,
+             '--strand', 'plus',
+             '--nonchimeras', final_fp],
+            stderr=subprocess.STDOUT,
+            universal_newlines=True
+        )
+        print(output)
+    except subprocess.CalledProcessError as c:
+        print(c)
+        print(c.cmd)
+        print(c.output)
 
 
 def get_reverse_reads_fp(forward_reads_fp):
