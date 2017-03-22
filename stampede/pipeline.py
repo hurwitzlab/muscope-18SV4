@@ -85,11 +85,12 @@ def pipeline(forward_reads_fp, work_dp_template):
     output = subprocess.check_call(
         ['vsearch',
          '--uchime_ref', length_filtered_fp,
-         '--db', '/home/jklynch/host/project/muscope/pr2_gb203_version_4/pr2_gb203_version_4.5.fasta',
+         '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
          '--uchimeout', uchimeout_fp,
          '--chimeras', chimeras_fp,
          '--strand', 'plus',
          '--nonchimeras', final_fp],
+        shell=True,
         stderr=subprocess.STDOUT,
         universal_newlines=True
     )
