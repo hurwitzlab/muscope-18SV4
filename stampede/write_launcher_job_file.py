@@ -22,7 +22,7 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
 
     with open(job_fp, 'wt') as job_file:
         for forward_fp, reverse_fp in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
-            job_file.write('python pipeline.py {} {}\n'.format(forward_fp, work_dp_template))
+            job_file.write('python pipeline.py -f {} -w {}\n'.format(forward_fp, work_dp_template))
 
 
 def get_file_path_pairs(forward_read_file_paths, reverse_read_file_paths):
