@@ -20,9 +20,14 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     forward_read_file_path_set = glob.glob(os.path.join(input_dp, '*_R1_*'))
     reverse_read_file_path_set = glob.glob(os.path.join(input_dp, '*_R2_*'))
 
+    # this script will run in muscope-18SV4/stampede but Launcher
+    # jobs will run in the Launcher's work directory
+    # so specify absolute paths
+    pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
+
     with open(job_fp, 'wt') as job_file:
         for forward_fp, reverse_fp in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
-            job_file.write('python pipeline.py -f {} -w {}\n'.format(forward_fp, work_dp_template))
+            job_file.write('python {} -f {} -w {}\n'.format(pipeline_fp, forward_fp, work_dp_template))
 
 
 def get_file_path_pairs(forward_read_file_paths, reverse_read_file_paths):
