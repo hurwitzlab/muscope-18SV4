@@ -82,6 +82,7 @@ def pipeline(forward_reads_fp, work_dp_template):
     uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
     chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
     final_fp = os.path.join(vsearch_dp, vsearch_filename)
+
     try:
         output = subprocess.check_call(
             ['vsearch',
@@ -91,6 +92,7 @@ def pipeline(forward_reads_fp, work_dp_template):
              '--chimeras', chimeras_fp,
              '--strand', 'plus',
              '--nonchimeras', final_fp],
+            shell=True,
             stderr=subprocess.STDOUT,
             universal_newlines=True
         )
