@@ -2,9 +2,14 @@
 
 source activate mu18SV4
 
+echo "starting directory: `pwd`"
+
 BIN=$( cd "$( dirname "$0" )" && pwd )
 
-LAUNCHER_JOBFILE=${SLURM_JOB_ID}_launcher_jobfile
+echo "BIN=${BIN}"
+
+LAUNCHER_JOBFILE="./${SLURM_JOB_ID}_launcher_jobfile"
+echo ${LAUNCHER_JOBFILE}
 python write_launcher_job_file.py -i $1 -j ${LAUNCHER_JOBFILE} -w ${SCRATCH}/work-${SLURM_JOB_ID}-{prefix}
 
 echo "Starting launcher"
