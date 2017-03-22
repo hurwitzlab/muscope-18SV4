@@ -81,10 +81,17 @@ def pipeline(forward_reads_fp, work_dp_template):
     vsearch_filename = os.path.basename(length_filtered_fp)
     uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
     chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
-    final_fp = os.path.join(vsearch_dp, vsearch_filename)
+    final_fp = os.path.join(vsearch_dp, vsearch_filename.replace('len.fasta', 'len.nc.fasta'))
 
+    print(' '.join(['vsearch',
+             '--uchime_ref', length_filtered_fp,
+             '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
+             '--uchimeout', uchimeout_fp,
+             '--chimeras', chimeras_fp,
+             '--strand', 'plus',
+             '--nonchimeras', final_fp]))
     try:
-        output = subprocess.check_call(
+        output = subprocess.check_output(
             ['vsearch',
              '--uchime_ref', length_filtered_fp,
              '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
@@ -92,7 +99,6 @@ def pipeline(forward_reads_fp, work_dp_template):
              '--chimeras', chimeras_fp,
              '--strand', 'plus',
              '--nonchimeras', final_fp],
-            shell=True,
             stderr=subprocess.STDOUT,
             universal_newlines=True
         )
