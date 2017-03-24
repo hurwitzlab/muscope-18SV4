@@ -17,4 +17,4 @@ else
   mkdir -p $OUT_DIR
 fi
 
-run.sh "$SCRATCH/muscope-18SV4/test_data/" $OUT_DIR
+./run.sh "$SCRATCH/muscope-18SV4/test_data/" $OUT_DIR
