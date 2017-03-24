@@ -3,7 +3,9 @@ write_launcher_job_file.py
 """
 import argparse
 import glob
+import math
 import os
+import subprocess
 
 
 def get_args():
@@ -26,7 +28,7 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
 
     with open(job_fp, 'wt') as job_file:
-        for forward_fp, reverse_fp in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
+        for forward_fp, _ in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
             job_file.write('python {} -f {} -w {}\n'.format(pipeline_fp, forward_fp, work_dp_template))
 
 
@@ -48,9 +50,71 @@ def get_file_path_pairs(forward_read_file_paths, reverse_read_file_paths):
         raise Exception('unpaired reverse read files remaining:\n{}'.format('\n'.join(unpaired_reverse_read_file_paths)))
 
 
+def set_launcher_env_vars(job_fp, job_count):
+    """Define the TACC Launcher environment variables to spread the work across all available cores.
+
+    Give each job at least 4 cores and try to use all cores at all times. Not always possible.
+
+    :param job_count: (int) number of jobs in the Launcher job file
+    :return:
+    """
+
+    #"Starting launcher"
+    #"  SLURM_JOB_NUM_NODES=$SLURM_JOB_NUM_NODES"
+    #"  SLURM_NTASKS=$SLURM_NTASKS"
+    #"  SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
+    #"  SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
+
+    slurm_job_num_nodes = int(os.environ['SLURM_JOB_NUM_NODES'])
+    slurm_ntasks = int(os.environ['SLURM_NTASKS'])
+    slurm_job_cpus_per_node = int(os.environ['SLURM_JOB_CPUS_PER_NODE'])
+    slurm_tasks_per_node= int(os.environ['SLURM_TASKS_PER_NODE'])
+
+    print('SLURM_JOB_NUM_NODES     : {}'.format(slurm_job_num_nodes))
+    print('SLURM_NTASKS            : {}'.format(slurm_ntasks))
+    print('SLURM_JOB_CPUS_PER_NODE : {}'.format(slurm_job_cpus_per_node))
+    print('SLURM_TASKS_PER_NODE    : {}'.format(slurm_tasks_per_node))
+
+    # at least 4 cores per job
+    #   1 node * 16 cores per node / 1 job  = 16    cores per job
+    #   1 node * 16 cores per node / 2 jobs = 8     cores per job
+    #   1 node * 16 cores per node / 3 jobs = 5.333 cores per job
+    #   1 node * 16 cores per node / 4 jobs = 4     cores per job
+    #   1 node * 16 cores per node / 5 jobs = 3.2   cores per job
+    core_count = slurm_job_num_nodes * slurm_job_cpus_per_node / job_count
+    cores_per_job = max(int(math.floor(core_count)), 4)
+    #   16 cores per node / 16 cores per job = 1 job per node
+    #   16 cores per node /  8 cores per job = 2 jobs per node
+    #   16 cores per node /  5 cores per job = 3.2 jobs per node
+    #   16 cores per node /  4 cores per job = 4 jobs per node
+    processes_per_node = int(math.floor(16 / cores_per_job))
+
+    print('core count         : {}'.format(core_count))
+    print('cores per job      : {}'.format(cores_per_job))
+    print('processes per node : {}'.format(processes_per_node))
+
+    #os.environ['LAUNCHER_DIR'] = '$HOME/src/launcher'
+    #os.environ['LAUNCHER_PLUGIN_DIR']= '$LAUNCHER_DIR/plugins
+    #os.environ['LAUNCHER_WORKDIR'] = '$SCRATCH/muscope-18SV4'
+    #os.environ['LAUNCHER_RMI'] = 'SLURM'
+    os.environ['LAUNCHER_JOB_FILE'] = job_fp
+    #os.environ['LAUNCHER_NJOBS'] = str(job_count)
+    #os.environ['LAUNCHER_NHOSTS'] =
+    #os.environ['LAUNCHER_NPROCS'] =
+    os.environ['LAUNCHER_PPN'] = processes_per_node
+    os.environ['LAUNCHER_SCHED'] = 'dynamic'
+
+
+def launch():
+    launcher_fp = os.path.join(os.environ['LAUNCHER_DIR'], 'launcher')
+    subprocess.run([launcher_fp, ])
+
+
 if __name__ == '__main__':
     args = get_args()
-    write_launcher_job_file(**args.__dict__)
+    job_count = write_launcher_job_file(**args.__dict__)
+    set_launcher_env_vars(job_fp=args.job_fp, job_count=job_count)
+    launch()
 
 
 import pytest
@@ -93,3 +157,6 @@ def test_get_file_path_pairs_reverse_reads_exception():
                 forward_read_file_paths=forward_read_files,
                 reverse_read_file_paths=reverse_read_files))
 
+
+def test_write_launcher_job_file():
+    write_launcher_job_file('/tmp/job_file', 'test-data', 'unit-test-work-{prefix}')
