@@ -5,7 +5,7 @@ import argparse
 import glob
 import math
 import os
-import subprocess
+import subprocess32 as subprocess
 
 
 def get_args():
@@ -30,6 +30,7 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     with open(job_fp, 'wt') as job_file:
         for forward_fp, _ in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
             job_file.write('python {} -f {} -w {}\n'.format(pipeline_fp, forward_fp, work_dp_template))
+    return len(forward_read_file_path_set)
 
 
 def get_file_path_pairs(forward_read_file_paths, reverse_read_file_paths):
@@ -101,13 +102,13 @@ def set_launcher_env_vars(job_fp, job_count):
     #os.environ['LAUNCHER_NJOBS'] = str(job_count)
     #os.environ['LAUNCHER_NHOSTS'] =
     #os.environ['LAUNCHER_NPROCS'] =
-    os.environ['LAUNCHER_PPN'] = processes_per_node
+    os.environ['LAUNCHER_PPN'] = str(processes_per_node)
     os.environ['LAUNCHER_SCHED'] = 'dynamic'
 
 
 def launch():
     launcher_fp = os.path.join(os.environ['LAUNCHER_DIR'], 'launcher')
-    subprocess.run([launcher_fp, ])
+    print(subprocess.check_call([launcher_fp], stderr=subprocess.PIPE, universal_newlines=True))
 
 
 if __name__ == '__main__':
