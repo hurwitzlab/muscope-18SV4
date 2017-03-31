@@ -1,0 +1,48 @@
+{
+    "available": true,
+    "checkpointable": false,
+    "defaultMemoryPerNode": 32,
+    "defaultProcessorsPerNode": 16,
+    "defaultMaxRunTime": "12:00:00",
+    "defaultNodeCount": 1,
+    "defaultQueue": "serial",
+    "deploymentPath": "jklynch/applications/muscope-18SV4-0.0.1/stampede",
+    "deploymentSystem": "data.iplantcollaborative.org",
+    "executionSystem": "tacc-stampede-jklynch",
+    "executionType": "HPC",
+    "helpURI": "http://protocols.io",
+    "label": "muSCOPE 18S V4 QC",
+    "longDescription": "muSCOPE 18S V4 QC",
+    "modules": [],
+    "name": "muSCOPE-18SV4",
+    "ontology": ["http://sswapmeet.sswap.info/agave/apps/Application"],
+    "parallelism": "SERIAL",
+    "shortDescription": "muSCOPE 18S V4 QC",
+    "tags": ["muscope","18S", "V4", "QC"],
+    "templatePath": "template.sh",
+    "testPath": "test.sh",
+    "version": "0.0.1",
+    "inputs": [{
+        "id": "INPUT_DIR",
+        "value": {
+            "default": "",
+            "order": 0,
+            "required": true,
+            "validator": "",
+            "visible": true
+        },
+        "semantics": {
+            "ontology": ["http://sswapmeet.sswap.info/mime/application/X-bam"],
+            "minCardinality": 1,
+            "fileTypes": ["raw-0"]
+        },
+        "details": {
+            "description": "",
+            "label": "Input directory",
+            "argument": "",
+            "showArgument": true
+        }
+    }],
+    "parameters": [],
+    "outputs": []
+}
