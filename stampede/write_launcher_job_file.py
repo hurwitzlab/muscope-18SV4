@@ -22,6 +22,8 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     forward_read_file_path_set = glob.glob(os.path.join(input_dp, '*_R1_*'))
     reverse_read_file_path_set = glob.glob(os.path.join(input_dp, '*_R2_*'))
 
+    if len(forward_read_file_path_set) == 0:
+        raise Exception('found no forward read files in directory "{}"'.format(input_dp))
     # this script will run in muscope-18SV4/stampede but Launcher
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
