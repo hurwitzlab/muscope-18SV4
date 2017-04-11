@@ -108,14 +108,14 @@ def set_launcher_env_vars(job_fp, job_count):
 
 def launch():
     launcher_fp = os.path.join(os.environ['LAUNCHER_DIR'], 'launcher')
-    print(subprocess.check_call([launcher_fp], stderr=subprocess.PIPE, universal_newlines=True))
+    print(subprocess.check_call([launcher_fp], shell=True, stderr=subprocess.PIPE, universal_newlines=True))
 
 
 if __name__ == '__main__':
     args = get_args()
     job_count = write_launcher_job_file(**args.__dict__)
     set_launcher_env_vars(job_fp=args.job_fp, job_count=job_count)
-    launch()
+    #launch()
 
 
 import pytest
