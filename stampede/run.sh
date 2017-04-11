@@ -19,10 +19,12 @@ export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
 export LAUNCHER_WORKDIR=$SCRATCH/muscope-18SV4
 export LAUNCHER_RMI=SLURM
 
-LAUNCHER_JOBFILE=${SLURM_JOB_ID}_launcher_jobfile
-echo ${LAUNCHER_JOBFILE}
-python write_launcher_job_file.py -i $1 -j ${LAUNCHER_JOBFILE} -w ${SCRATCH}/work-${SLURM_JOB_ID}-{prefix}
+export LAUNCHER_JOB_FILE=`pwd`/${SLURM_JOB_ID}_launcher_jobfile
+echo ${LAUNCHER_JOB_FILE}
+python write_launcher_job_file.py -i $1 -j ${LAUNCHER_JOB_FILE} -w ${SCRATCH}/work-${SLURM_JOB_ID}-{prefix}
+sleep 10
+export LAUNCHER_PPN=2
 
-#$LAUNCHER_DIR/paramrun
+$LAUNCHER_DIR/paramrun
 echo "Ended launcher"
 
