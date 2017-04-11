@@ -3,7 +3,7 @@
   "appId": "muscope-18SV4-0.0.1",
   "archive": true,
   "inputs": {
-    "QUERY": "agave://data.iplantcollaborative.org/jklynch/data/muscope/18SV4/test-data/"
+    "INPUT_DIR": "agave://data.iplantcollaborative.org/jklynch/data/muscope/18SV4/test-data/"
   },
   "parameter": {
   }
