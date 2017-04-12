@@ -31,15 +31,31 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     print('path to pipeline.py: {}'.format(pipeline_fp))
 
     forward_reverse_read_pairs = [
-        forward_fp, reverse_fp
+        (forward_fp, reverse_fp)
         for forward_fp, reverse_fp
         in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set)]
 
-    cores_per_job = get_cores_per_job(job_count=len(forward_reverse_read_pairs))
+    slurm_job_num_nodes = int(os.environ['SLURM_JOB_NUM_NODES'])
+    slurm_ntasks = int(os.environ['SLURM_NTASKS'])
+    slurm_job_cpus_per_node = int(os.environ['SLURM_JOB_CPUS_PER_NODE'])
+    slurm_tasks_per_node= int(os.environ['SLURM_TASKS_PER_NODE'])
+
+    print('SLURM_JOB_NUM_NODES     : {}'.format(slurm_job_num_nodes))
+    print('SLURM_NTASKS            : {}'.format(slurm_ntasks))
+    print('SLURM_JOB_CPUS_PER_NODE : {}'.format(slurm_job_cpus_per_node))
+    print('SLURM_TASKS_PER_NODE    : {}'.format(slurm_tasks_per_node))
+
+    cores_per_job = get_cores_per_job(
+        job_count=len(forward_reverse_read_pairs),
+        slurm_job_num_nodes=slurm_job_num_nodes,
+        slurm_ntasks=slurm_ntasks,
+        slurm_job_cpus_per_node=slurm_job_cpus_per_node,
+        slurm_tasks_per_node=slurm_tasks_per_node)
 
     with open(job_fp, 'wt') as job_file:
         for forward_fp, _ in forward_reverse_read_pairs:
-            job_file.write('python {} -f {} -w {} -c {}\n'.format(pipeline_fp, forward_fp, work_dp_template, cores_per_job))
+            job_file.write('python {} -f {} -w {} -c {}\n'.format(
+                pipeline_fp, forward_fp, work_dp_template, cores_per_job))
     return len(forward_read_file_path_set)
 
 
@@ -61,17 +77,7 @@ def get_file_path_pairs(forward_read_file_paths, reverse_read_file_paths):
         raise Exception('unpaired reverse read files remaining:\n{}'.format('\n'.join(unpaired_reverse_read_file_paths)))
 
 
-def get_cores_per_job(job_count):
-    slurm_job_num_nodes = int(os.environ['SLURM_JOB_NUM_NODES'])
-    slurm_ntasks = int(os.environ['SLURM_NTASKS'])
-    slurm_job_cpus_per_node = int(os.environ['SLURM_JOB_CPUS_PER_NODE'])
-    slurm_tasks_per_node= int(os.environ['SLURM_TASKS_PER_NODE'])
-
-    print('SLURM_JOB_NUM_NODES     : {}'.format(slurm_job_num_nodes))
-    print('SLURM_NTASKS            : {}'.format(slurm_ntasks))
-    print('SLURM_JOB_CPUS_PER_NODE : {}'.format(slurm_job_cpus_per_node))
-    print('SLURM_TASKS_PER_NODE    : {}'.format(slurm_tasks_per_node))
-
+def get_cores_per_job(job_count, slurm_job_num_nodes, slurm_ntasks, slurm_job_cpus_per_node, slurm_tasks_per_node):
     # at least 4 cores per job
     #   1 node * 16 cores per node / 1 job  = 16    cores per job
     #   1 node * 16 cores per node / 2 jobs = 8     cores per job
@@ -201,5 +207,39 @@ def test_get_file_path_pairs_reverse_reads_exception():
                 reverse_read_file_paths=reverse_read_files))
 
 
+def test_get_cores_per_job():
+    one_node = {
+        'slurm_job_num_nodes': 1,
+        'slurm_ntasks': 1,
+        'slurm_job_cpus_per_node': 16,
+        'slurm_tasks_per_node': 16
+    }
+    assert get_cores_per_job(job_count=1, **one_node) == 16
+    assert get_cores_per_job(job_count=2, **one_node) == 8
+    assert get_cores_per_job(job_count=3, **one_node) == 5
+    assert get_cores_per_job(job_count=4, **one_node) == 4
+    assert get_cores_per_job(job_count=5, **one_node) == 4
+    assert get_cores_per_job(job_count=6, **one_node) == 4
+
+    # TODO: more than one node results in unreasonable choices
+    # for example 10 cores for each of 3 jobs is not feasible I think
+    two_nodes = {
+        'slurm_job_num_nodes': 2,
+        'slurm_ntasks': 1,
+        'slurm_job_cpus_per_node': 16,
+        'slurm_tasks_per_node': 16
+    }
+    assert get_cores_per_job(job_count=1, **two_nodes) == 32
+    assert get_cores_per_job(job_count=2, **two_nodes) == 16
+    assert get_cores_per_job(job_count=3, **two_nodes) == 10
+    assert get_cores_per_job(job_count=4, **two_nodes) == 8
+    assert get_cores_per_job(job_count=5, **two_nodes) == 6
+
+
 def test_write_launcher_job_file():
+    os.environ['SLURM_JOB_NUM_NODES'] = str(1)
+    os.environ['SLURM_NTASKS'] = str(8)
+    os.environ['SLURM_JOB_CPUS_PER_NODE'] = str(16)
+    os.environ['SLURM_TASKS_PER_NODE'] = str(16)
+
     write_launcher_job_file('/tmp/job_file', 'test-data', 'unit-test-work-{prefix}')
