@@ -32,11 +32,12 @@ def get_args():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-f', '--forward-reads-fp', help='path to a forward-read FASTQ file')
     arg_parser.add_argument('-w', '--work-dp-template', help='template for working directory')
+    arg_parser.add_argument('-c', '--core-count', help='number of cores to use')
     args = arg_parser.parse_args()
     return args
 
 
-def pipeline(forward_reads_fp, work_dp_template):
+def pipeline(forward_reads_fp, work_dp_template, core_count):
 
     reverse_reads_fp = get_reverse_reads_fp(forward_reads_fp)
     prefix = get_reads_filename_prefix(forward_reads_fp)
@@ -85,6 +86,7 @@ def pipeline(forward_reads_fp, work_dp_template):
 
     print(' '.join(['vsearch',
              '--uchime_ref', length_filtered_fp,
+             '--threads', str(core_count),
              '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
              '--uchimeout', uchimeout_fp,
              '--chimeras', chimeras_fp,
@@ -94,6 +96,7 @@ def pipeline(forward_reads_fp, work_dp_template):
         output = subprocess.check_output(
             ['vsearch',
              '--uchime_ref', length_filtered_fp,
+             '--threads', str(core_count),
              '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
              '--uchimeout', uchimeout_fp,
              '--chimeras', chimeras_fp,
@@ -305,18 +308,18 @@ import shutil
 
 def test_pipeline():
     shutil.rmtree('work-Test_0_1', ignore_errors=True)
-    pipeline(forward_reads_fp='test-data/Test_0_1_L001_R1_001.fastq', work_dp_template='work-{prefix}')
+    pipeline(forward_reads_fp='test-data/Test_0_1_L001_R1_001.fastq', work_dp_template='work-{prefix}', core_count=4)
 
-    assert os.path.exists('work-Test01')
-    assert os.path.exists('work-Test01/join')
-    assert os.path.exists('work-Test01/join/fastqjoin.join.fastq')
-    assert os.path.exists('work-Test01/Test01_map.txt')
-    assert os.path.exists('work-Test01/split')
-    assert os.path.exists('work-Test01/split/seqs.fna')
-    assert os.path.exists('work-Test01/cut')
-    assert os.path.exists('work-Test01/cut/Test01.assembled.clipped.regF.fasta')
-    assert os.path.exists('work-Test01/cut/Test01.assembled.clipped.regR.fasta')
-    assert os.path.exists('work-Test01/cut/Test01.discard_regF.fasta')
-    assert os.path.exists('work-Test01/cut/tmp.fasta')
-    assert os.path.exists('work-Test01/cut/Test01.assembled.clipped.combined.fasta')
-    assert os.path.exists('work-Test01/cut/Test01.assembled.clipped.combined.len.fasta')
+    assert os.path.exists('work-Test_0_1')
+    assert os.path.exists('work-Test_0_1/join')
+    assert os.path.exists('work-Test_0_1/join/fastqjoin.join.fastq')
+    assert os.path.exists('work-Test_0_1/Test_0_1_map.txt')
+    assert os.path.exists('work-Test_0_1/split')
+    assert os.path.exists('work-Test_0_1/split/seqs.fna')
+    assert os.path.exists('work-Test_0_1/cut')
+    assert os.path.exists('work-Test_0_1/cut/Test_0_1.assembled.clipped.regF.fasta')
+    assert os.path.exists('work-Test_0_1/cut/Test_0_1.assembled.clipped.regR.fasta')
+    assert os.path.exists('work-Test_0_1/cut/Test_0_1.discard_regF.fasta')
+    assert os.path.exists('work-Test_0_1/cut/tmp.fasta')
+    assert os.path.exists('work-Test_0_1/cut/Test_0_1.assembled.clipped.combined.fasta')
+    assert os.path.exists('work-Test_0_1/cut/Test_0_1.assembled.clipped.combined.len.fasta')
