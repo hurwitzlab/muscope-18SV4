@@ -28,10 +28,18 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
     pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
+    print('path to pipeline.py: {}'.format(pipeline_fp))
+
+    forward_reverse_read_pairs = [
+        forward_fp, reverse_fp
+        for forward_fp, reverse_fp
+        in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set)]
+
+    cores_per_job = get_cores_per_job(job_count=len(forward_reverse_read_pairs))
 
     with open(job_fp, 'wt') as job_file:
-        for forward_fp, _ in get_file_path_pairs(forward_read_file_path_set, reverse_read_file_path_set):
-            job_file.write('python {} -f {} -w {}\n'.format(pipeline_fp, forward_fp, work_dp_template))
+        for forward_fp, _ in forward_reverse_read_pairs:
+            job_file.write('python {} -f {} -w {} -c {}\n'.format(pipeline_fp, forward_fp, work_dp_template, cores_per_job))
     return len(forward_read_file_path_set)
 
 
@@ -51,6 +59,38 @@ def get_file_path_pairs(forward_read_file_paths, reverse_read_file_paths):
 
     if len(unpaired_reverse_read_file_paths) > 0:
         raise Exception('unpaired reverse read files remaining:\n{}'.format('\n'.join(unpaired_reverse_read_file_paths)))
+
+
+def get_cores_per_job(job_count):
+    slurm_job_num_nodes = int(os.environ['SLURM_JOB_NUM_NODES'])
+    slurm_ntasks = int(os.environ['SLURM_NTASKS'])
+    slurm_job_cpus_per_node = int(os.environ['SLURM_JOB_CPUS_PER_NODE'])
+    slurm_tasks_per_node= int(os.environ['SLURM_TASKS_PER_NODE'])
+
+    print('SLURM_JOB_NUM_NODES     : {}'.format(slurm_job_num_nodes))
+    print('SLURM_NTASKS            : {}'.format(slurm_ntasks))
+    print('SLURM_JOB_CPUS_PER_NODE : {}'.format(slurm_job_cpus_per_node))
+    print('SLURM_TASKS_PER_NODE    : {}'.format(slurm_tasks_per_node))
+
+    # at least 4 cores per job
+    #   1 node * 16 cores per node / 1 job  = 16    cores per job
+    #   1 node * 16 cores per node / 2 jobs = 8     cores per job
+    #   1 node * 16 cores per node / 3 jobs = 5.333 cores per job
+    #   1 node * 16 cores per node / 4 jobs = 4     cores per job
+    #   1 node * 16 cores per node / 5 jobs = 3.2   cores per job
+    core_count = slurm_job_num_nodes * slurm_job_cpus_per_node / job_count
+    cores_per_job = max(int(math.floor(core_count)), 4)
+    #   16 cores per node / 16 cores per job = 1 job per node
+    #   16 cores per node /  8 cores per job = 2 jobs per node
+    #   16 cores per node /  5 cores per job = 3.2 jobs per node
+    #   16 cores per node /  4 cores per job = 4 jobs per node
+    processes_per_node = int(math.floor(16 / cores_per_job))
+
+    print('core count         : {}'.format(core_count))
+    print('cores per job      : {}'.format(cores_per_job))
+    print('processes per node : {}'.format(processes_per_node))
+
+    return cores_per_job
 
 
 def set_launcher_env_vars(job_fp, job_count):
