@@ -4,7 +4,5 @@
   "archive": true,
   "inputs": {
     "INPUT_DIR": "agave://data.iplantcollaborative.org/jklynch/data/muscope/18SV4/test-data/"
-  },
-  "parameter": {
   }
 }
