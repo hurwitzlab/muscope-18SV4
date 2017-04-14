@@ -2,10 +2,7 @@
 
 echo "Started $(date)"
 
-inputDir=${INPUT_DIR}
-echo "input directory: ${inputDir}"
-
-sh run.sh ${inputDir} `pwd`
+sh run.sh ${INPUT_DIR} `pwd`
 
 echo "Ended $(date)"
 exit 0
