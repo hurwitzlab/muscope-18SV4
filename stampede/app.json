@@ -22,28 +22,23 @@
     "templatePath": "template.sh",
     "testPath": "test.sh",
     "version": "0.0.1",
-    "parameters": [{
-        "id": "INPUT_DIR",
+    "inputs": [{
+        "id": "INPUT_FILES",
         "value": {
-            "type": "string",
-            "default": "",
-            "order": 0,
             "required": true,
-            "validator": "",
             "visible": true
         },
         "semantics": {
-            "ontology": ["http://sswapmeet.sswap.info/mime/application/X-bam"],
-            "minCardinality": 1,
+            "minCardinality": 2,
             "fileTypes": ["raw-0"]
         },
         "details": {
-            "description": "",
-            "label": "Input directory",
+            "description": "Forward and reverse reads",
+            "label": "Input files (forward AND reverse reads)",
             "argument": "",
             "showArgument": true
         }
     }],
-    "inputs": [],
+    "parameters": [],
     "outputs": []
 }

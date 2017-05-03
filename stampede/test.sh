@@ -17,4 +17,4 @@ fi
 
 mkdir -p $OUT_DIR
 
-./run.sh "$SCRATCH/muscope-18SV4/test-data/" $OUT_DIR
+./run.sh "$SCRATCH/muscope-18SV4/test-data/1_200um_S1_L001_R1_001.fastq.gz,$SCRATCH/muscope-18SV4/test-data/1_200um_S1_L001_R2_001.fastq.gz" $OUT_DIR
