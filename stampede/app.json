@@ -23,18 +23,18 @@
     "testPath": "test.sh",
     "version": "0.0.1",
     "inputs": [{
-        "id": "INPUT_FILES",
+        "id": "INPUT_DIR",
         "value": {
+            "default": "this is needed",
             "required": true,
             "visible": true
         },
         "semantics": {
-            "minCardinality": 2,
             "fileTypes": ["raw-0"]
         },
         "details": {
-            "description": "Forward and reverse reads",
-            "label": "Input files (forward AND reverse reads)",
+            "description": "Directory of forward and reverse reads",
+            "label": "Input directory (forward AND reverse reads)",
             "argument": "",
             "showArgument": true
         }

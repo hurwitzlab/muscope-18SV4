@@ -3,6 +3,6 @@
   "appId": "muscope-18SV4-0.0.1",
   "archive": true,
   "inputs": {
-    "INPUT_FILES": "/iplant/home/jklynch/data/muscope/18SV4/test-data/1_200um_S1_L001_R1_001.fastq.gz,/iplant/home/jklynch/data/muscope/18SV4/test-data/1_200um_S1_L001_R2_001.fastq.gz"
+    "INPUT_DIR": "/iplant/home/jklynch/data/muscope/18SV4/test-data"
   }
 }
