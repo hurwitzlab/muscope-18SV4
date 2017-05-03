@@ -2,7 +2,7 @@
   "name": "muscope-18SV4-test",
   "appId": "muscope-18SV4-0.0.1",
   "archive": true,
-  "inputs": {
+  "parameters": {
     "INPUT_DIR": "agave://data.iplantcollaborative.org/jklynch/data/muscope/18SV4/test-data/"
   }
 }

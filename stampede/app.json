@@ -22,9 +22,10 @@
     "templatePath": "template.sh",
     "testPath": "test.sh",
     "version": "0.0.1",
-    "inputs": [{
+    "parameters": [{
         "id": "INPUT_DIR",
         "value": {
+            "type": "string",
             "default": "",
             "order": 0,
             "required": true,
@@ -43,6 +44,6 @@
             "showArgument": true
         }
     }],
-    "parameters": [],
+    "inputs": [],
     "outputs": []
 }
