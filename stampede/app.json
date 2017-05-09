@@ -21,7 +21,7 @@
     "tags": ["muscope","18S", "V4", "QC"],
     "templatePath": "template.sh",
     "testPath": "test.sh",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "inputs": [{
         "id": "INPUT_DIR",
         "value": {
@@ -39,6 +39,22 @@
             "showArgument": true
         }
     }],
-    "parameters": [],
+    "parameters": [{
+        "id": "forward_primer",
+        "value": {
+            "default": "CCAGCASCYGCGGTAATTCC",
+            "required": true,
+            "visible": true
+        },
+        "semantics": {
+
+        },
+        "details": {
+            "argument": "--forward-primer",
+            "description": "forward primer",
+            "label": "forward primer",
+            "showArgument": true
+        }
+    }],
     "outputs": []
 }

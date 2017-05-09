@@ -33,11 +33,13 @@ def get_args():
     arg_parser.add_argument('-f', '--forward-reads-fp', help='path to a forward-read FASTQ file')
     arg_parser.add_argument('-w', '--work-dp-template', help='template for working directory')
     arg_parser.add_argument('-c', '--core-count', help='number of cores to use')
+    arg_parser.add_argument('--forward-primer', default='CCAGCASCYGCGGTAATTCC', help='forward primer to be clipped')
+    arg_parser.add_argument('--reverse-primer', default='TYRATCAAGAACGAAAGT', help='reverse primer to be clipped')
     args = arg_parser.parse_args()
     return args
 
 
-def pipeline(forward_reads_fp, work_dp_template, core_count):
+def pipeline(forward_reads_fp, forward_primer, reverse_primer, work_dp_template, core_count):
 
     reverse_reads_fp = get_reverse_reads_fp(forward_reads_fp)
     prefix = get_reads_filename_prefix(forward_reads_fp)
@@ -49,9 +51,7 @@ def pipeline(forward_reads_fp, work_dp_template, core_count):
         j=20,
         work_dp=work_dp)
 
-    map_fp = create_map_file(
-        prefix=prefix,
-        work_dp=work_dp)
+    map_fp = create_map_file(prefix=prefix, work_dp=work_dp)
 
     split_fp = split_libraries_fastq(
         map_fp=map_fp,
@@ -61,8 +61,8 @@ def pipeline(forward_reads_fp, work_dp_template, core_count):
 
     forward_clipped_fp, reverse_clipped_fp = cut_primers(
         prefix=prefix,
-        forward_primer='CCAGCASCYGCGGTAATTCC',
-        reverse_primer='TYRATCAAGAACGAAAGT',
+        forward_primer=forward_primer,
+        reverse_primer=reverse_primer,
         work_dp=work_dp,
         input_fp=split_fp)
 
@@ -308,7 +308,12 @@ import shutil
 
 def test_pipeline():
     shutil.rmtree('work-Test_0_1', ignore_errors=True)
-    pipeline(forward_reads_fp='test-data/Test_0_1_L001_R1_001.fastq', work_dp_template='work-{prefix}', core_count=4)
+    pipeline(
+        forward_reads_fp='test-data/Test_0_1_L001_R1_001.fastq',
+        forward_primer='CCAGCASCYGCGGTAATTCC',
+        reverse_primer='TYRATCAAGAACGAAAGT',
+        work_dp_template='work-{prefix}',
+        core_count=4)
 
     assert os.path.exists('work-Test_0_1')
     assert os.path.exists('work-Test_0_1/join')
