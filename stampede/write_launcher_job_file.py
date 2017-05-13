@@ -54,8 +54,10 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
 
     with open(job_fp, 'wt') as job_file:
         for forward_fp, _ in forward_reverse_read_pairs:
-            job_file.write('python {} -f {} -w {} -c {}\n'.format(
-                pipeline_fp, forward_fp, work_dp_template, cores_per_job))
+            job_file.write(
+                #'python {} -f {} -w {} -c {}\n'
+                'singularity exec muscope-18SV4.img /opt/local/cyverse-app/miniconda/bin/python {} -f {} -w {} -c {}\n'.format(
+                    pipeline_fp, forward_fp, work_dp_template, cores_per_job))
     return len(forward_read_file_path_set)
 
 

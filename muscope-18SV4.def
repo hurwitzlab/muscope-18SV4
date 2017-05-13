@@ -1,0 +1,52 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+#BootStrap: debootstrap
+#OSVersion: trusty
+#MirrorURL: http://us.archive.ubuntu.com/ubuntu/
+
+%runscript
+
+    echo "Failte!"
+
+%post
+
+   echo "Here we are installing software and other dependencies for the container!"
+   
+   apt update
+   apt install -y build-essential bzip2 git wget
+
+   mkdir -p /opt/local/cyverse-app
+   export APP_DIR=/opt/local/cyverse-app
+   cd $APP_DIR
+
+   wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
+   export MINICONDA=$APP_DIR/miniconda
+   bash /tmp/miniconda.sh -b -p $MINICONDA
+   rm /tmp/miniconda.sh
+   export PATH=$MINICONDA/bin:$PATH
+   echo "PATH=${PATH}"
+
+   git clone https://github.com/hurwitzlab/muscope-18SV4.git
+   cd muscope-18SV4
+   #conda create --yes --name muscope-18VS4 --channel bioconda --file requirements.txt
+   # try "." instead of "source" because shell is not bash in here
+   #. activate muscope-18SV4
+   conda install --yes --channel bioconda --file requirements.txt
+   conda install --yes --channel bioconda fastq-join=1.3.1
+   cd ..
+
+   # create mount points for TACC directories
+   #mkdir /work/0458/jklynch/
+
+%runscript
+	echo "Arguments received: $*"
+	python "$@"
+
+%test
+   export APP_DIR=/opt/local/cyverse-app
+   export MINICONDA=$APP_DIR/miniconda
+   export PATH=$MINICONDA/bin:$PATH
+   echo "PATH=${PATH}"
+   #. activate muscope-18VS4
+   python --version

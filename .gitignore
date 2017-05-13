@@ -1,3 +1,6 @@
+# singularity image
+*.img
+
 work-*
 *.idea
 

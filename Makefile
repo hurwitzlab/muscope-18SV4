@@ -20,3 +20,7 @@ test:
 jobs-submit:
 	jobs-submit -F stampede/job.json
 
+singularity:
+	rm -f stampede/muscope-18SV4.img
+	sudo singularity create --size 4096 stampede/muscope-18SV4.img
+	sudo singularity bootstrap stampede/muscope-18SV4.img muscope-18SV4.def
