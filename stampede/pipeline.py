@@ -84,14 +84,6 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, work_dp_template,
     chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
     final_fp = os.path.join(vsearch_dp, vsearch_filename.replace('len.fasta', 'len.nc.fasta'))
 
-    print(' '.join(['vsearch',
-             '--uchime_ref', length_filtered_fp,
-             '--threads', str(core_count),
-             '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
-             '--uchimeout', uchimeout_fp,
-             '--chimeras', chimeras_fp,
-             '--strand', 'plus',
-             '--nonchimeras', final_fp]))
     try:
         output = subprocess.check_output(
             ['vsearch',
@@ -111,6 +103,15 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, work_dp_template,
         print(c.cmd)
         print(c.output)
 
+
+def run_cmd(cmd_line_list):
+    try:
+        output = subprocess.check_output(cmd_line_list, stderr=subprocess.STDOUT, universal_newlines=True)
+    except subprocess.CalledProcessError as c:
+        print(c)
+        print(c.cmd)
+        print(c.output)
+        raise c
 
 def get_reverse_reads_fp(forward_reads_fp):
     forward_dp, forward_filename = os.path.split(forward_reads_fp)
@@ -142,16 +143,13 @@ def create_map_file(prefix, work_dp):
 def join_paired_ends(forward_fp, reverse_fp, work_dp, j):
     join_work_dp = os.path.join(work_dp, 'join')
     print('begin joined paired ends step')
-    output = subprocess.check_output([
+    run_cmd([
         'join_paired_ends.py',
         '-f', forward_fp,
         '-r', reverse_fp,
         '-o', join_work_dp,
-        '-j', str(j)],
-        stderr=subprocess.STDOUT,
-        universal_newlines=True
+        '-j', str(j)]
     )
-    print(output)
     print('end joined paired ends step')
 
     joined_reads_fp = os.path.abspath(os.path.join(join_work_dp, 'fastqjoin.join.fastq'))
@@ -164,7 +162,7 @@ def join_paired_ends(forward_fp, reverse_fp, work_dp, j):
 def split_libraries_fastq(map_fp, joined_reads_fp, sample_ids, work_dp):
     split_work_dp = os.path.join(work_dp, 'split')
     print('begin split libraries step')
-    output = subprocess.check_output([
+    run_cmd([
         'split_libraries_fastq.py',
         '-i', joined_reads_fp,
         '-m', map_fp,
@@ -172,12 +170,8 @@ def split_libraries_fastq(map_fp, joined_reads_fp, sample_ids, work_dp):
         '--sample_ids', sample_ids,
         '-q', str(29),
         '-n', str(0),
-        '-o', split_work_dp],
-        stderr=subprocess.STDOUT,
-        universal_newlines=True
-    )
+        '-o', split_work_dp])
     print('end split libraries step')
-    print(output)
 
     split_fp = os.path.abspath(os.path.join(split_work_dp, 'seqs.fna'))
     if not os.path.exists(split_fp):
@@ -193,7 +187,7 @@ def cut_primers(prefix, forward_primer, reverse_primer, input_fp, work_dp):
     forward_discard_fp = os.path.join(work_dp, 'cut', prefix + '.discard_regF.fasta')
     reverse_fasta_fp = os.path.join(work_dp, 'cut', prefix + '.assembled.clipped.regR.fasta')
 
-    output1 = subprocess.check_output([
+    run_cmd([
         'cutadapt',
         '-g', forward_primer,
         '-O', str(3),
@@ -202,7 +196,7 @@ def cut_primers(prefix, forward_primer, reverse_primer, input_fp, work_dp):
         '-o', forward_fasta_fp,
         input_fp
     ])
-    output2 = subprocess.check_output([
+    run_cmd([
         'cutadapt',
         '-g', forward_primer,
         '-O', str(3),
@@ -212,7 +206,7 @@ def cut_primers(prefix, forward_primer, reverse_primer, input_fp, work_dp):
         '-o', os.path.join(work_dp, 'cut', 'tmp.fasta'),
         input_fp
     ])
-    output3 = subprocess.check_output([
+    run_cmd([
         'cutadapt',
         '-g', reverse_primer,
         '-O', str(3),
