@@ -22,5 +22,5 @@ jobs-submit:
 
 singularity:
 	rm -f stampede/muscope-18SV4.img
-	sudo singularity create --size 4096 stampede/muscope-18SV4.img
+	sudo singularity create --size 2048 stampede/muscope-18SV4.img
 	sudo singularity bootstrap stampede/muscope-18SV4.img muscope-18SV4.def
