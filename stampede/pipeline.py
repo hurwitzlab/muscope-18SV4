@@ -311,6 +311,7 @@ def test_pipeline():
         forward_reads_fp='test-data/Test_0_1_L001_R1_001.fastq',
         forward_primer='CCAGCASCYGCGGTAATTCC',
         reverse_primer='TYRATCAAGAACGAAAGT',
+        uchime_ref_db_fp='pr2_gb203_version_4.5.fasta',
         work_dp_template='work-{prefix}',
         core_count=4)
 
