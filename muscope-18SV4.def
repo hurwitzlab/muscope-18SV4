@@ -9,7 +9,7 @@ From: ubuntu:latest
 
    apt update
    # try leaving this to the python-dev install
-   apt install -y git wget 
+   apt install -y git wget zip
    
    # python-tk needed for no good reason - 
    apt install -y python-dev python-pip python-tk
@@ -57,6 +57,13 @@ From: ubuntu:latest
    mkdir /home1
    mkdir /scratch
    mkdir /work
+
+   mkdir /mu18SV4/pr2
+   cd /mu18SV4/pr2
+   wget https://ndownloader.figshare.com/files/7381369 -O pr2_gb203_version_4.5.zip
+   unzip pr2_gb203_version_4.5.zip
+   rm pr2_gb203_version_4.5.zip
+   ls -l
 
    # add environment variables to /environment file
    echo "\nexport PATH=$FASTQ_JOIN_PATH:$VSEARCH_PATH:\$PATH" >> /environment
