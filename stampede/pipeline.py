@@ -181,7 +181,9 @@ def split_libraries_fastq(map_fp, joined_reads_fp, sample_ids, work_dp):
 
 
 def cut_primers(prefix, forward_primer, reverse_primer, input_fp, work_dp):
-    os.makedirs(os.path.join(work_dp, 'cut'))
+    cut_dp = os.path.join(work_dp, 'cut')
+    if not os.exists(cut_dp):
+        os.makedirs(cut_dp)
 
     forward_fasta_fp = os.path.join(work_dp, 'cut', prefix + '.assembled.clipped.regF.fasta')
     forward_discard_fp = os.path.join(work_dp, 'cut', prefix + '.discard_regF.fasta')
