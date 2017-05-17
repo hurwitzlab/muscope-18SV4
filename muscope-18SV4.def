@@ -60,7 +60,6 @@ From: ubuntu:latest
 
    # add environment variables to /environment file
    echo "\nexport PATH=$FASTQ_JOIN_PATH:$VSEARCH_PATH:\$PATH" >> /environment
-   less /environment
 
 %test
    export APP_DIR=/mu18SV4
