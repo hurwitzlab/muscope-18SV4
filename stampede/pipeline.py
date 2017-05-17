@@ -35,7 +35,7 @@ def get_args():
     arg_parser.add_argument('-c', '--core-count', help='number of cores to use')
     arg_parser.add_argument('--forward-primer', default='CCAGCASCYGCGGTAATTCC', help='forward primer to be clipped')
     arg_parser.add_argument('--reverse-primer', default='TYRATCAAGAACGAAAGT', help='reverse primer to be clipped')
-    arg_parser.add_argument('--uchime-ref-db', default='/mu18SV4/pr2/pr2_gb203_version_4.5.fasta', help='database for vsearch --uchime_ref')
+    arg_parser.add_argument('--uchime-ref-db-fp', default='/mu18SV4/pr2/pr2_gb203_version_4.5.fasta', help='database for vsearch --uchime_ref')
     args = arg_parser.parse_args()
     return args
 
