@@ -35,11 +35,12 @@ def get_args():
     arg_parser.add_argument('-c', '--core-count', help='number of cores to use')
     arg_parser.add_argument('--forward-primer', default='CCAGCASCYGCGGTAATTCC', help='forward primer to be clipped')
     arg_parser.add_argument('--reverse-primer', default='TYRATCAAGAACGAAAGT', help='reverse primer to be clipped')
+    arg_parser.add_argument('--uchime-ref-db', default='/mu18SV4/pr2/pr2_gb203_version_4.5.fasta' help='database for vsearch --uchime_ref')
     args = arg_parser.parse_args()
     return args
 
 
-def pipeline(forward_reads_fp, forward_primer, reverse_primer, work_dp_template, core_count):
+def pipeline(forward_reads_fp, forward_primer, reverse_primer, uchime_ref_db_fp, work_dp_template, core_count):
 
     reverse_reads_fp = get_reverse_reads_fp(forward_reads_fp)
     prefix = get_reads_filename_prefix(forward_reads_fp)
@@ -78,7 +79,9 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, work_dp_template,
 
     #(8) Chimera check with vsearch (uchime) using a reference database
     vsearch_dp = os.path.join(work_dp, 'vsearch')
-    os.mkdir(vsearch_dp)
+    if not os.path.exists(vsearch_dp):
+        os.mkdir(vsearch_dp)
+
     vsearch_filename = os.path.basename(length_filtered_fp)
     uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
     chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
@@ -89,7 +92,7 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, work_dp_template,
             ['vsearch',
              '--uchime_ref', length_filtered_fp,
              '--threads', str(core_count),
-             '--db', '/work/04658/jklynch/external_dbs/pr2_gb203_version_4.5.fasta',
+             '--db', uchime_ref_db_fp,
              '--uchimeout', uchimeout_fp,
              '--chimeras', chimeras_fp,
              '--strand', 'plus',
