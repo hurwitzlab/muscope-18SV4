@@ -19,7 +19,7 @@ jobs:
       - checkout
 
       - run:
-          name: Install the beautiful software
+          name: Install and test the beautiful software.
           command: |
             pip install numpy
             pip install .[dev,test]
