@@ -18,7 +18,7 @@ jobs:
     steps:
       - checkout
 
-     - run:
-        name: Install Python deps in a venv
-        command: |
-          pip install .
+      - run:
+          name: Install Python deps in a venv
+          command: |
+            pip install .
