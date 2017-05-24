@@ -4,7 +4,10 @@ import shutil
 
 import pytest
 
+from Bio import SeqIO
+
 import qc18SV4.pipeline as pipeline
+
 
 def test_get_reverse_fp():
     reverse_fp = pipeline.get_reverse_reads_fp(forward_reads_fp='/a/b/c_d_L001_R1_001.fastq')
