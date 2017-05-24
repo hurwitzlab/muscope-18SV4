@@ -19,6 +19,7 @@ jobs:
       - checkout
 
       - run:
-          name: Install Python deps in a venv
+          name: Install the beautiful software
           command: |
+            pip install numpy
             pip install .[dev,test]
