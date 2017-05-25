@@ -15,9 +15,9 @@ This script handles one pair of paired-end files.
 
 """
 import argparse
-import io
 import os
 import re
+import shutil
 import sys
 
 if os.name == 'posix' and sys.version_info[0] < 3:
@@ -67,9 +67,11 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, uchime_ref_db_fp,
         work_dp=work_dp,
         input_fp=split_fp)
 
-    combined_clipped_fp = combine_files(forward_clipped_fp, reverse_clipped_fp)
+    combined_clipped_fp = combine_files(
+        forward_clipped_fp.replace('.regF.', '.combined.'),
+        forward_clipped_fp, reverse_clipped_fp)
 
-    length_filtered_fp = combined_clipped_fp.replace('combined.fasta', 'combined.len.fasta')
+    length_filtered_fp = re.sub('combined\.fasta$', 'combined.len.fasta', combined_clipped_fp)
     with open(combined_clipped_fp, 'rt') as combined_clipped_file, open(length_filtered_fp, 'wt') as length_filtered_file:
         seq_length_cutoff(
             input_file=combined_clipped_file,
@@ -85,7 +87,7 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, uchime_ref_db_fp,
     vsearch_filename = os.path.basename(length_filtered_fp)
     uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
     chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
-    final_fp = os.path.join(vsearch_dp, vsearch_filename.replace('len.fasta', 'len.nc.fasta'))
+    final_fp = os.path.join(vsearch_dp, re.sub('len\.fasta$', 'len.nc.fasta', vsearch_filename))
 
     try:
         output = subprocess.check_output(
@@ -224,14 +226,12 @@ def cut_primers(prefix, forward_primer, reverse_primer, input_fp, work_dp):
     return forward_fasta_fp, reverse_fasta_fp
 
 
-def combine_files(forward_clipped_fp, reverse_clipped_fp):
-    forward_and_reverse_clipped_fp = forward_clipped_fp.replace('.regF.', '.combined.')
-    with open(forward_and_reverse_clipped_fp, 'wt') as output_file:
-        for fp in (forward_clipped_fp, reverse_clipped_fp):
-            with open(fp, 'rt') as input_file:
-                for line in input_file:
-                    output_file.write(line)
-    return forward_and_reverse_clipped_fp
+def combine_files(destination_file_fp, *source_fp_list):
+    with open(destination_file_fp, 'wt') as destination_file:
+        for source_fp in source_fp_list:
+            with open(source_fp, 'rt') as source_file:
+                shutil.copyfileobj(source_file, destination_file)
+    return destination_file_fp
 
 
 def seq_length_cutoff(input_file, min_length, max_length, output_file):
@@ -246,6 +246,10 @@ def seq_length_cutoff(input_file, min_length, max_length, output_file):
             format='fasta')
 
 
-if __name__ == '__main__':
+def main():
     args = get_args()
     pipeline(**args.__dict__)
+
+
+if __name__ == '__main__':
+    main()

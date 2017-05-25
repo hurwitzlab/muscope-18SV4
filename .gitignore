@@ -1,3 +1,6 @@
+# _ means don't put it in git
+_*
+
 # singularity image
 *.img
 

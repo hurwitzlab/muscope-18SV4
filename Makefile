@@ -1,5 +1,5 @@
 APP = muscope-18SV4
-VERSION = 0.0.1
+VERSION = 0.0.2
 EMAIL = jklynch@email.arizona.edu
 
 clean:
@@ -20,7 +20,7 @@ test:
 jobs-submit:
 	jobs-submit -F stampede/job.json
 
-singularity:
-	rm -f stampede/muscope-18SV4.img
-	sudo singularity create --size 2048 stampede/muscope-18SV4.img
-	sudo singularity bootstrap stampede/muscope-18SV4.img muscope-18SV4.def
+container:
+	rm -f singularity/muscope-18SV4.img
+	sudo singularity create --size 2048 singularity/muscope-18SV4.img
+	sudo singularity bootstrap singularity/muscope-18SV4.img singularity/muscope-18SV4.def

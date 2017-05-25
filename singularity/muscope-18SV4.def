@@ -5,6 +5,10 @@ From: ubuntu:latest
 
     echo "Failte!"
 
+%setup
+    mkdir "$SINGULARITY_ROOTFS/muscope-18SV4"
+    mount --no-mtab --bind `pwd` "$SINGULARITY_ROOTFS/muscope-18SV4"
+
 %post
 
    apt update
@@ -15,23 +19,22 @@ From: ubuntu:latest
    apt install -y python-dev python-pip python-tk
    # see http://stackoverflow.com/questions/36394101/pip-install-locale-error-unsupported-locale-setting
    export LC_ALL=C  # needed for pip but why?
-   pip install --upgrade pip
+   /usr/bin/pip install --upgrade pip
 
    # I know these will be needed
    # is it really necessary to install numpy first?
    # I have had trouble with pycogent refusing to install because it does not recognize numpy
    # but the following two-step install seems to work
-   pip install numpy
-   pip install qiime
+   /usr/bin/pip install numpy
 
    export APP_DIR=/mu18SV4
    mkdir -p $APP_DIR
-   cd $APP_DIR
 
-   git clone https://github.com/hurwitzlab/muscope-18SV4.git
-   cd muscope-18SV4
-   git checkout feature/primer_args
-   pip install -r requirements.txt
+   /usr/bin/pip install /muscope-18SV4
+   #git clone https://github.com/hurwitzlab/muscope-18SV4.git
+   #cd muscope-18SV4
+   #git checkout feature/primer_args
+   #pip install -r requirements.txt
 
    cd $APP_DIR
    git clone https://github.com/brwnj/fastq-join
