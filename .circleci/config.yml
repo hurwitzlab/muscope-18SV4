@@ -28,5 +28,5 @@ jobs:
       - run:
           name: Install and test the beautiful software.
           command: |
-            alias sudo=""
-            make container
+            singularity create --size 2048 singularity/muscope-18SV4.img
+            singularity bootstrap singularity/muscope-18SV4.img singularity/muscope-18SV4.def
