@@ -10,10 +10,6 @@ jobs:
     working_directory: ~/muscope-18SV4
 
     branches:
-      only:
-        - master
-        - develop
-        - /feature-.*/
 
     steps:
       - checkout
