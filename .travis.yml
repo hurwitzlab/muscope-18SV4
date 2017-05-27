@@ -3,6 +3,7 @@ python: 2.7
 sudo: required
 dist: xenial
 before_install:
+  - cd /tmp
   - git clone https://github.com/singularityware/singularity.git
   - cd singularity
   - ./autogen.sh
