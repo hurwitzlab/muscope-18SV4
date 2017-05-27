@@ -12,30 +12,22 @@ From: ubuntu:latest
 %post
 
    apt update
-   # try leaving this to the python-dev install
    apt install -y git wget zip
    
-   # python-tk needed for no good reason - 
+   # python-tk needed for no good reason by QIIME
    apt install -y python-dev python-pip python-tk
    # see http://stackoverflow.com/questions/36394101/pip-install-locale-error-unsupported-locale-setting
    export LC_ALL=C  # needed for pip but why?
    /usr/bin/pip install --upgrade pip
 
-   # I know these will be needed
-   # is it really necessary to install numpy first?
-   # I have had trouble with pycogent refusing to install because it does not recognize numpy
-   # but the following two-step install seems to work
+   # pycogent refuses to install if numpy is not already installed
+   # installing numpy first solves that problem
    /usr/bin/pip install numpy
+
+   /usr/bin/pip install /muscope-18SV4
 
    export APP_DIR=/mu18SV4
    mkdir -p $APP_DIR
-
-   /usr/bin/pip install /muscope-18SV4
-   #git clone https://github.com/hurwitzlab/muscope-18SV4.git
-   #cd muscope-18SV4
-   #git checkout feature/primer_args
-   #pip install -r requirements.txt
-
    cd $APP_DIR
    git clone https://github.com/brwnj/fastq-join
    cd fastq-join
@@ -56,11 +48,7 @@ From: ubuntu:latest
    echo "installed vsearch"
    echo "  PATH=$PATH"
 
-   # create mount points for TACC directories
-   mkdir /home1
-   mkdir /scratch
-   mkdir /work
-
+   # install PR2
    mkdir /mu18SV4/pr2
    cd /mu18SV4/pr2
    wget https://ndownloader.figshare.com/files/7381369 -O pr2_gb203_version_4.5.zip
@@ -70,6 +58,11 @@ From: ubuntu:latest
 
    # add environment variables to /environment file
    echo "\nexport PATH=$FASTQ_JOIN_PATH:$VSEARCH_PATH:\$PATH" >> /environment
+
+   # create mount points for TACC directories
+   mkdir /home1
+   mkdir /scratch
+   mkdir /work
 
 %test
    export APP_DIR=/mu18SV4
