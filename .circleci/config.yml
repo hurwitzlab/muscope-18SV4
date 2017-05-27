@@ -17,6 +17,7 @@ jobs:
       - run:
           name: Install singularity.
           command: |
+            cd /tmp
             git clone https://github.com/singularityware/singularity.git
             cd singularity
             ./autogen.sh
