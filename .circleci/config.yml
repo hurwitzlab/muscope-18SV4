@@ -46,7 +46,8 @@ jobs:
       - run:
           name: Install PR2.
           command: |
-            apt install zip
+            apt update
+            apt install -y zip
             export APP_DIR=/mu18SV4
             mkdir -p $APP_DIR
             export PR2_DIR=$APP_DIR/pr2
