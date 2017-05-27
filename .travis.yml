@@ -9,7 +9,7 @@ before_install:
   - ./autogen.sh
   - ./configure --prefix=/usr/local
   - make
-  - make install
+  - sudo make install
 install:
   - make container
 script:
