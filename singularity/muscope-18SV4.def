@@ -13,7 +13,7 @@ From: ubuntu:latest
 
    apt update
    apt install -y git wget zip
-   
+
    # python-tk needed for no good reason by QIIME
    apt install -y python-dev python-pip python-tk
    # see http://stackoverflow.com/questions/36394101/pip-install-locale-error-unsupported-locale-setting
@@ -24,7 +24,7 @@ From: ubuntu:latest
    # installing numpy first solves that problem
    /usr/bin/pip install numpy
 
-   /usr/bin/pip install /muscope-18SV4
+   /usr/bin/pip install /muscope-18SV4[dev,test]
 
    export APP_DIR=/mu18SV4
    mkdir -p $APP_DIR
@@ -32,7 +32,7 @@ From: ubuntu:latest
    git clone https://github.com/brwnj/fastq-join
    cd fastq-join
    make
-   export FASTQ_JOIN_PATH=$APP_DIR/fastq-join
+   export FASTQ_JOIN_PATH=`pwd`
    export PATH=$FASTQ_JOIN_PATH:$PATH
    echo "installed fastq-join"
    echo "  PATH=$PATH"
@@ -73,3 +73,5 @@ From: ubuntu:latest
    python --version
    #fastq-join
    vsearch --version
+   # somehow run py.test
+   py.test /mu18SV4/test
