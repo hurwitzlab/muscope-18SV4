@@ -12,9 +12,13 @@ before_install:
   - make
   - sudo make install
 install:
-  - cd ~
+  - pwd
+  - cd /home/travis/build/hurwitzlab/muscope-18SV4
+  - ls -l
   - make container
 script:
+  - pwd
+  - ls -l
   - py.test tests/
 notifications:
   email:
