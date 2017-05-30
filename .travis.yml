@@ -19,8 +19,8 @@ install:
 script:
   - pwd
   - ls -l
-  - py.test tests/
+  - singularity exec singularity/muscope-18SV4.img py.test test/
 notifications:
   email:
-    on_success: never
+    on_success: always
     on_failure: always
