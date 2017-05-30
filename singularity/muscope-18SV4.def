@@ -74,4 +74,3 @@ From: ubuntu:latest
    #fastq-join
    vsearch --version
    # somehow run py.test
-   py.test /mu18SV4/test
