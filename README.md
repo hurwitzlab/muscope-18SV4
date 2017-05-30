@@ -1,6 +1,7 @@
 # muscope-18SV4
 A CyVerse app implementing "Microbial eukaryotic 18S tag-sequence processing/QC - V4 region" from protocols.io.
 
+[![Build Status](https://travis-ci.org/hurwitzlab/muscope-18SV4.svg?branch=master)](https://travis-ci.org/hurwitzlab/muscope-18SV4)
 
 ## Requirements
 This application uses QIIME, which is assumed to be installed in a Python 2 virtual environment called 'mu18SV4'. Here is one way to create the necessary virtual environment using the Anaconda Python distribution:
