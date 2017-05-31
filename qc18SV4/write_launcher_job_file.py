@@ -33,10 +33,7 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
     singularity_container_fp = os.path.abspath('mu18SV4.img')
-    print('path to Singularity container: {}'.format(singularity_container_fp)
-
-    #pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
-    #print('path to pipeline.py: {}'.format(pipeline_fp))
+    print('path to Singularity container: {}'.format(singularity_container_fp))
 
     forward_reverse_read_pairs = [
         (forward_fp, reverse_fp)
