@@ -12,23 +12,25 @@ From: ubuntu:latest
 %post
 
    apt update
-   apt install -y git wget zip
+   apt install -y git wget zip python-dev python-pip python-tk
 
-   # python-tk needed for no good reason by QIIME
-   apt install -y python-dev python-pip python-tk
+   # set LC_ALL for pip
    # see http://stackoverflow.com/questions/36394101/pip-install-locale-error-unsupported-locale-setting
-   export LC_ALL=C  # needed for pip but why?
+   export LC_ALL=C
    /usr/bin/pip install --upgrade pip
 
-   # pycogent refuses to install if numpy is not already installed
+   # pycogent (QIIME dependency) refuses to install if numpy is not already installed
    # installing numpy first solves that problem
    /usr/bin/pip install numpy
 
    /usr/bin/pip install /muscope-18SV4[dev,test]
 
+   # create a directory for installed dependencies
    export APP_DIR=/mu18SV4
    mkdir -p $APP_DIR
    cd $APP_DIR
+
+   # install fastq-join
    git clone https://github.com/brwnj/fastq-join
    cd fastq-join
    make
@@ -45,7 +47,7 @@ From: ubuntu:latest
    mv $APP_DIR/vsearch-2.4.3-linux-x86_64 $APP_DIR/vsearch
    export VSEARCH_PATH=$APP_DIR/vsearch/bin
    export PATH=$VSEARCH_PATH:$PATH
-   echo "installed vsearch"
+   echo "installed vsearch at $VSEARCH_PATH"
    echo "  PATH=$PATH"
 
    # install PR2
@@ -54,7 +56,8 @@ From: ubuntu:latest
    wget https://ndownloader.figshare.com/files/7381369 -O pr2_gb203_version_4.5.zip
    unzip pr2_gb203_version_4.5.zip
    rm pr2_gb203_version_4.5.zip
-   ls -l
+   export PR2_PATH=`pwd`
+   echo "installed PR2 at $PR2_DIR"
 
    # add environment variables to /environment file
    echo "\nexport PATH=$FASTQ_JOIN_PATH:$VSEARCH_PATH:\$PATH" >> /environment
@@ -71,6 +74,7 @@ From: ubuntu:latest
    echo "PATH=${PATH}"
 
    python --version
-   #fastq-join
    vsearch --version
-   # somehow run py.test
+   # fastq-join returns error when called with no arguments
+   # and has no -h or --help
+   #fastq-join
