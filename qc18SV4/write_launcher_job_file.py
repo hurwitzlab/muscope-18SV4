@@ -32,8 +32,11 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     # this script will run in muscope-18SV4/stampede but Launcher
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
-    pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
-    print('path to pipeline.py: {}'.format(pipeline_fp))
+    singularity_container_fp = os.path.abspath('mu18SV4.img')
+    print('path to Singularity container: {}'.format(singularity_container_fp)
+
+    #pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
+    #print('path to pipeline.py: {}'.format(pipeline_fp))
 
     forward_reverse_read_pairs = [
         (forward_fp, reverse_fp)
@@ -60,8 +63,8 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     with open(job_fp, 'wt') as job_file:
         for forward_fp, _ in forward_reverse_read_pairs:
             job_file.write(
-                'singularity exec muscope-18SV4.img pipeline -f {} -w {} -c {}\n'.format(
-                    forward_fp, work_dp_template, cores_per_job))
+                'singularity exec {} pipeline -f {} -w {} -c {}\n'.format(
+                    singularity_container_fp, forward_fp, work_dp_template, cores_per_job))
     return len(forward_read_file_path_set)
 
 
