@@ -32,7 +32,7 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     # this script will run in muscope-18SV4/stampede but Launcher
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
-    singularity_container_fp = os.path.abspath('mu18SV4.img')
+    singularity_container_fp = os.path.abspath('muscope-18SV4.img')
     print('path to Singularity container: {}'.format(singularity_container_fp))
 
     forward_reverse_read_pairs = [
