@@ -20,9 +20,15 @@ test:
 jobs-submit:
 	jobs-submit -F stampede/job.json
 
-install-fastq-join:
-
 container:
 	rm -f singularity/muscope-18SV4.img
 	sudo singularity create --size 2048 singularity/muscope-18SV4.img
 	sudo singularity bootstrap singularity/muscope-18SV4.img singularity/muscope-18SV4.def
+
+iput-container:
+	irm muscope-18SV4.img
+	iput singularity/muscope-18SV4.img
+
+iget-container:
+	iget muscope-18SV4.img
+
