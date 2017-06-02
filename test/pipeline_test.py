@@ -57,7 +57,7 @@ def test__seq_length_cutoff_2():
     assert filtered_sequences[0].seq == 'CG'
 
 
-def test_pipeline():
+def test_pipeline(uchime_ref_db_fp):
     here = os.path.dirname(__file__)
     test_data_dir = os.path.join(here, 'data')
     test_data_fp = os.path.join(test_data_dir, 'Test01_L001_R1_001.fastq')
@@ -68,7 +68,7 @@ def test_pipeline():
         forward_reads_fp=test_data_fp,
         forward_primer='CCAGCASCYGCGGTAATTCC',
         reverse_primer='TYRATCAAGAACGAAAGT',
-        uchime_ref_db_fp=os.path.join(test_data_dir, 'tiny_pr2_gb203_version_4.5.fasta'),
+        uchime_ref_db_fp=uchime_ref_db_fp,
         work_dp_template=functional_test_dir,  # removed {prefix}
         core_count=4)
 
