@@ -6,7 +6,7 @@
   "defaultMaxRunTime": "12:00:00",
   "defaultNodeCount": 1,
   "defaultQueue": "serial",
-  "deploymentPath": "jklynch/applications/muscope-18SV4-0.0.1/stampede",
+  "deploymentPath": "jklynch/applications/muscope-18SV4-0.0.2/stampede",
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede-jklynch",
   "executionType": "HPC",
