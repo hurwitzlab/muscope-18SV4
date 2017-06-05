@@ -1,6 +1,6 @@
 # muscope-18SV4
 
-[![Build Status](https://travis-ci.org/hurwitzlab/imicrobe-JUITS16S.svg?branch=develop)](https://travis-ci.org/hurwitzlab/imicrobe-JUITS16S)
+[![Build Status](https://travis-ci.org/hurwitzlab/muscope-18SV4.svg?branch=master)](https://travis-ci.org/hurwitzlab/muscope-18SV4)
 
 A CyVerse app implementing "Microbial eukaryotic 18S tag-sequence processing/QC - V4 region" from protocols.io.
 
