@@ -34,6 +34,7 @@ From: ubuntu:latest
    git clone https://github.com/brwnj/fastq-join
    cd fastq-join
    make
+   ls -l
    export FASTQ_JOIN_PATH=`pwd`
    export PATH=$FASTQ_JOIN_PATH:$PATH
    echo "installed fastq-join"
@@ -68,13 +69,12 @@ From: ubuntu:latest
    mkdir /work
 
 %test
-   export APP_DIR=/mu18SV4
-   export PATH=$APP_DIR/fastq-join:$APP_DIR/vsearch/bin:$PATH
-
+   . /environment
    echo "PATH=${PATH}"
 
    python --version
    vsearch --version
+   which fastq-join
    # fastq-join returns error when called with no arguments
    # and has no -h or --help
    #fastq-join
