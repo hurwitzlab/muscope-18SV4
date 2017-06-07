@@ -96,13 +96,14 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, uchime_ref_db_fp,
         uchime_ref_db_fp=uchime_ref_db_fp)
 
 
-def run_cmd(cmd_line_list):
+def run_cmd(cmd_line_list, **kwargs):
     try:
         print(' '.join(cmd_line_list))
         output = subprocess.check_output(
             cmd_line_list,
             stderr=subprocess.STDOUT,
-            universal_newlines=True)
+            universal_newlines=True,
+            **kwargs)
         print(output)
     except subprocess.CalledProcessError as c:
         print(c.message)
@@ -272,7 +273,8 @@ def vsearch(prefix, work_dp, length_filtered_fp, core_count, uchime_ref_db_fp):
          '--uchimeout', uchimeout_fp,
          '--chimeras', chimeras_fp,
          '--strand', 'plus',
-         '--nonchimeras', final_fp]
+         '--nonchimeras', final_fp],
+        shell=True
     )
 
 
