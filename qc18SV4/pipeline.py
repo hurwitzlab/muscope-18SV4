@@ -19,6 +19,7 @@ import os
 import re
 import shutil
 import sys
+import traceback
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subprocess32 as subprocess
@@ -26,6 +27,11 @@ else:
     import subprocess
 
 from Bio import SeqIO
+
+
+def main():
+    args = get_args()
+    pipeline(**args.__dict__)
 
 
 def get_args():
@@ -45,6 +51,9 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, uchime_ref_db_fp,
     reverse_reads_fp = get_reverse_reads_fp(forward_reads_fp)
     prefix = get_reads_filename_prefix(forward_reads_fp)
     work_dp = work_dp_template.format(prefix=prefix)
+
+    if not os.path.exists(work_dp):
+        os.mkdir(work_dp)
 
     joined_reads_fp = join_paired_ends(
         forward_fp=forward_reads_fp,
@@ -79,44 +88,33 @@ def pipeline(forward_reads_fp, forward_primer, reverse_primer, uchime_ref_db_fp,
             max_length=500,
             output_file=length_filtered_file)
 
-    #(8) Chimera check with vsearch (uchime) using a reference database
-    vsearch_dp = os.path.join(work_dp, 'vsearch')
-    if not os.path.exists(vsearch_dp):
-        os.mkdir(vsearch_dp)
-
-    vsearch_filename = os.path.basename(length_filtered_fp)
-    uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
-    chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
-    final_fp = os.path.join(vsearch_dp, re.sub('len\.fasta$', 'len.nc.fasta', vsearch_filename))
-
-    try:
-        output = subprocess.check_output(
-            ['vsearch',
-             '--uchime_ref', length_filtered_fp,
-             '--threads', str(core_count),
-             '--db', uchime_ref_db_fp,
-             '--uchimeout', uchimeout_fp,
-             '--chimeras', chimeras_fp,
-             '--strand', 'plus',
-             '--nonchimeras', final_fp],
-            stderr=subprocess.STDOUT,
-            universal_newlines=True
-        )
-        print(output)
-    except subprocess.CalledProcessError as c:
-        print(c)
-        print(c.cmd)
-        print(c.output)
+    vsearch(
+        prefix=prefix,
+        work_dp=work_dp,
+        length_filtered_fp=length_filtered_fp,
+        core_count=core_count,
+        uchime_ref_db_fp=uchime_ref_db_fp)
 
 
 def run_cmd(cmd_line_list):
     try:
-        output = subprocess.check_output(cmd_line_list, stderr=subprocess.STDOUT, universal_newlines=True)
+        print(' '.join(cmd_line_list))
+        output = subprocess.check_output(
+            cmd_line_list,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True)
+        print(output)
     except subprocess.CalledProcessError as c:
-        print(c)
+        print(c.message)
         print(c.cmd)
         print(c.output)
         raise c
+    except Exception as e:
+        print('blarg!')
+        print(e)
+        traceback.print_exc()
+        raise e
+
 
 def get_reverse_reads_fp(forward_reads_fp):
     forward_dp, forward_filename = os.path.split(forward_reads_fp)
@@ -147,13 +145,22 @@ def create_map_file(prefix, work_dp):
 
 def join_paired_ends(forward_fp, reverse_fp, work_dp, j):
     join_work_dp = os.path.join(work_dp, 'join')
+    if not os.path.exists(join_work_dp):
+        os.makedirs(join_work_dp)
     print('begin joined paired ends step')
+    #run_cmd([
+    #    'join_paired_ends.py',
+    #    '-j', str(j),
+    #    '-f', forward_fp,
+    #    '-r', reverse_fp,
+    #    '-o', join_work_dp]
+    #)
     run_cmd([
-        'join_paired_ends.py',
-        '-f', forward_fp,
-        '-r', reverse_fp,
-        '-o', join_work_dp,
-        '-j', str(j)]
+        'fastq-join',
+        '-m', str(j),
+        forward_fp,
+        reverse_fp,
+        '-o', os.path.join(join_work_dp, 'fastqjoin.%.fastq')]
     )
     print('end joined paired ends step')
 
@@ -246,9 +253,27 @@ def seq_length_cutoff(input_file, min_length, max_length, output_file):
             format='fasta')
 
 
-def main():
-    args = get_args()
-    pipeline(**args.__dict__)
+def vsearch(prefix, work_dp, length_filtered_fp, core_count, uchime_ref_db_fp):
+    #(8) Chimera check with vsearch (uchime) using a reference database
+    vsearch_dp = os.path.join(work_dp, 'vsearch')
+    if not os.path.exists(vsearch_dp):
+        os.mkdir(vsearch_dp)
+
+    vsearch_filename = os.path.basename(length_filtered_fp)
+    uchimeout_fp = os.path.join(vsearch_dp, prefix + '.uchimeinfo_ref')
+    chimeras_fp = os.path.join(vsearch_dp, prefix + '.chimeras_ref.fasta')
+    final_fp = os.path.join(vsearch_dp, re.sub('len\.fasta$', 'len.nc.fasta', vsearch_filename))
+
+    run_cmd(
+        ['vsearch',
+         '--uchime_ref', length_filtered_fp,
+         '--threads', str(core_count),
+         '--db', uchime_ref_db_fp,
+         '--uchimeout', uchimeout_fp,
+         '--chimeras', chimeras_fp,
+         '--strand', 'plus',
+         '--nonchimeras', final_fp]
+    )
 
 
 if __name__ == '__main__':
