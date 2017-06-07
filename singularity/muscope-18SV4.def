@@ -26,7 +26,7 @@ From: ubuntu:latest
    /usr/bin/pip install /muscope-18SV4[dev,test]
 
    # create a directory for installed dependencies
-   export APP_DIR=/mu18SV4
+   APP_DIR=/mu18SV4
    mkdir -p $APP_DIR
    cd $APP_DIR
 
@@ -35,8 +35,8 @@ From: ubuntu:latest
    cd fastq-join
    make
    ls -l
-   export FASTQ_JOIN_PATH=`pwd`
-   export PATH=$FASTQ_JOIN_PATH:$PATH
+   FASTQ_JOIN_PATH=$APP_DIR/fastq-join
+   PATH=$FASTQ_JOIN_PATH:$PATH
    echo "installed fastq-join"
    echo "  PATH=$PATH"
 
@@ -46,8 +46,8 @@ From: ubuntu:latest
    tar xzf /tmp/vsearch.tar.gz
    rm /tmp/vsearch.tar.gz
    mv $APP_DIR/vsearch-2.4.3-linux-x86_64 $APP_DIR/vsearch
-   export VSEARCH_PATH=$APP_DIR/vsearch/bin
-   export PATH=$VSEARCH_PATH:$PATH
+   VSEARCH_PATH=$APP_DIR/vsearch/bin
+   PATH=$VSEARCH_PATH:$PATH
    echo "installed vsearch at $VSEARCH_PATH"
    echo "  PATH=$PATH"
 
