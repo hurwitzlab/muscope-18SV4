@@ -1,4 +1,5 @@
 import io
+import logging
 import os.path
 import shutil
 
@@ -7,6 +8,9 @@ import pytest
 from Bio import SeqIO
 
 import qc18SV4.pipeline as pipeline
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def test_get_reverse_fp():
@@ -57,6 +61,7 @@ def test__seq_length_cutoff_2():
     assert filtered_sequences[0].seq == 'CG'
 
 
+@pytest.mark.xfail(reason='not able to find fastq-join with Travis CI')
 def test_pipeline(uchime_ref_db_fp):
     here = os.path.dirname(__file__)
     test_data_dir = os.path.join(here, 'data')
@@ -64,24 +69,30 @@ def test_pipeline(uchime_ref_db_fp):
     functional_test_dir = os.path.join(here, '_functional_test_pipeline')
     shutil.rmtree(functional_test_dir, ignore_errors=True)
 
-    pipeline.pipeline(
+    assert not os.path.exists(functional_test_dir)
+
+    pipeline.Pipeline(
         forward_reads_fp=test_data_fp,
         forward_primer='CCAGCASCYGCGGTAATTCC',
         reverse_primer='TYRATCAAGAACGAAAGT',
+        min_overlap=20,
         uchime_ref_db_fp=uchime_ref_db_fp,
-        work_dp_template=functional_test_dir,  # removed {prefix}
-        core_count=4)
+        work_dp=functional_test_dir,  # removed {prefix}
+        core_count=4).run()
 
     assert os.path.exists(functional_test_dir)
-    assert os.path.exists(os.path.join(functional_test_dir, 'join'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'join', 'fastqjoin.join.fastq'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'Test01_map.txt'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'split'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'split', 'seqs.fna'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut', 'Test01.assembled.clipped.regF.fasta'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut', 'Test01.assembled.clipped.regR.fasta'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut', 'Test01.discard_regF.fasta'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut', 'tmp.fasta'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut', 'Test01.assembled.clipped.combined.fasta'))
-    assert os.path.exists(os.path.join(functional_test_dir, 'cut', 'Test01.assembled.clipped.combined.len.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_01_join_paired_end_reads'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_01_join_paired_end_reads', 'fastqjoin.join.fastq'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_02_split_libraries'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_02_split_libraries', 'Test01_map.txt'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_02_split_libraries', 'seqs.fna'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_03_cut_primers'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_03_cut_primers', 'Test01.assembled.clipped.regF.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_03_cut_primers', 'Test01.assembled.clipped.regR.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_03_cut_primers', 'Test01.discard_regF.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_03_cut_primers', 'tmp.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_04_combine_files', 'Test01.assembled.clipped.combined.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_05_length_filter', 'Test01.assembled.clipped.combined.len.fasta'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_06_remove_chimeras'))
+    assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_06_remove_chimeras', 'Test01.assembled.clipped.combined.len.nc.fasta'))
+
