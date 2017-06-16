@@ -1,0 +1,25 @@
+language: c
+sudo: required
+dist: trusty
+before_install:
+  - pwd
+  - cd /tmp
+  - git clone https://github.com/singularityware/singularity.git
+  - cd singularity
+  - ./autogen.sh
+  - ./configure --prefix=/usr/local
+  - make
+  - sudo make install
+install:
+  - pwd
+  - cd /home/travis/build/hurwitzlab/muscope-18SV4
+  - ls -l
+  - make container
+script:
+  - pwd
+  - ls -l
+  - singularity exec singularity/muscope-18SV4.img py.test test/ --uchime-ref-db-fp /mu18SV4/pr2/pr2_gb203/pr2_gb203_version_4.5.fasta
+notifications:
+  email:
+    on_success: always
+    on_failure: always

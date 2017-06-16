@@ -5,14 +5,19 @@ import argparse
 import glob
 import math
 import os
-import subprocess32 as subprocess
+import sys
+
+if os.name == 'posix' and sys.version_info[0] < 3:
+    import subprocess32 as subprocess
+else:
+    import subprocess
 
 
 def get_args():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('-j', '--job-fp', help='job file to be written')
-    arg_parser.add_argument('-i', '--input-dp', help='directory of input files')
-    arg_parser.add_argument('-w', '--work-dp-template', help='template for working directory')
+    arg_parser.add_argument('-j', '--job-fp', required=True, help='job file to be written')
+    arg_parser.add_argument('-i', '--input-dp', required=True, help='directory of input files')
+    arg_parser.add_argument('-w', '--work-dp-template', required=True, help='template for working directory')
     args = arg_parser.parse_args()
     return args
 
@@ -27,8 +32,8 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
     # this script will run in muscope-18SV4/stampede but Launcher
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
-    pipeline_fp = os.path.join(os.getcwd(), 'pipeline.py')
-    print('path to pipeline.py: {}'.format(pipeline_fp))
+    singularity_container_fp = os.path.abspath('muscope-18SV4.img')
+    print('path to Singularity container: {}'.format(singularity_container_fp))
 
     forward_reverse_read_pairs = [
         (forward_fp, reverse_fp)
@@ -54,8 +59,9 @@ def write_launcher_job_file(job_fp, input_dp, work_dp_template):
 
     with open(job_fp, 'wt') as job_file:
         for forward_fp, _ in forward_reverse_read_pairs:
-            job_file.write('python {} -f {} -w {} -c {}\n'.format(
-                pipeline_fp, forward_fp, work_dp_template, cores_per_job))
+            job_file.write(
+                'singularity exec {} pipeline -f {} -w {} -c {}\n'.format(
+                    singularity_container_fp, forward_fp, work_dp_template, cores_per_job))
     return len(forward_read_file_path_set)
 
 
@@ -154,92 +160,10 @@ def set_launcher_env_vars(job_fp, job_count):
     os.environ['LAUNCHER_SCHED'] = 'dynamic'
 
 
-def launch():
-    launcher_fp = os.path.join(os.environ['LAUNCHER_DIR'], 'launcher')
-    print(subprocess.check_call([launcher_fp], shell=True, stderr=subprocess.PIPE, universal_newlines=True))
+def main():
+    args = get_args()
+    write_launcher_job_file(**args.__dict__)
 
 
 if __name__ == '__main__':
-    args = get_args()
-    job_count = write_launcher_job_file(**args.__dict__)
-    set_launcher_env_vars(job_fp=args.job_fp, job_count=job_count)
-    #launch()
-
-
-import pytest
-
-
-def test_get_file_path_pairs():
-
-    forward_read_files = ('/a/b/c_R1_d.fa', '/e/f/g_R1_h.fa', '/i/j/k_R1_l.fa')
-    reverse_read_files = ('/a/b/c_R2_d.fa', '/e/f/g_R2_h.fa', '/i/j/k_R2_l.fa')
-
-    paired_files = set(
-        get_file_path_pairs(
-            forward_read_file_paths=forward_read_files,
-            reverse_read_file_paths=reverse_read_files))
-
-    assert len(paired_files) == 3
-    assert ('/a/b/c_R1_d.fa', '/a/b/c_R2_d.fa') in paired_files
-    assert ('/e/f/g_R1_h.fa', '/e/f/g_R2_h.fa') in paired_files
-    assert ('/i/j/k_R1_l.fa', '/i/j/k_R2_l.fa') in paired_files
-
-
-def test_get_file_path_pairs_forward_reads_exception():
-    forward_read_files = ('/a/b/c_R1_d.fa', '/e/f/g_R1_h.fa')
-    reverse_read_files = ('/a/b/c_R2_d.fa', '/e/f/g_R2_h.fa', '/i/j/k_R2_l.fa')
-
-    with pytest.raises(Exception):
-        paired_files = set(
-            get_file_path_pairs(
-                forward_read_file_paths=forward_read_files,
-                reverse_read_file_paths=reverse_read_files))
-
-
-def test_get_file_path_pairs_reverse_reads_exception():
-    forward_read_files = ('/a/b/c_R1_d.fa', '/e/f/g_R1_h.fa', '/i/j/k_R1_l.fa')
-    reverse_read_files = ('/a/b/c_R2_d.fa', '/e/f/g_R2_h.fa')
-
-    with pytest.raises(Exception):
-        paired_files = set(
-            get_file_path_pairs(
-                forward_read_file_paths=forward_read_files,
-                reverse_read_file_paths=reverse_read_files))
-
-
-def test_get_cores_per_job():
-    one_node = {
-        'slurm_job_num_nodes': 1,
-        'slurm_ntasks': 1,
-        'slurm_job_cpus_per_node': 16,
-        'slurm_tasks_per_node': 16
-    }
-    assert get_cores_per_job(job_count=1, **one_node) == 16
-    assert get_cores_per_job(job_count=2, **one_node) == 8
-    assert get_cores_per_job(job_count=3, **one_node) == 5
-    assert get_cores_per_job(job_count=4, **one_node) == 4
-    assert get_cores_per_job(job_count=5, **one_node) == 4
-    assert get_cores_per_job(job_count=6, **one_node) == 4
-
-    # TODO: more than one node results in unreasonable choices
-    # for example 10 cores for each of 3 jobs is not feasible I think
-    two_nodes = {
-        'slurm_job_num_nodes': 2,
-        'slurm_ntasks': 1,
-        'slurm_job_cpus_per_node': 16,
-        'slurm_tasks_per_node': 16
-    }
-    assert get_cores_per_job(job_count=1, **two_nodes) == 32
-    assert get_cores_per_job(job_count=2, **two_nodes) == 16
-    assert get_cores_per_job(job_count=3, **two_nodes) == 10
-    assert get_cores_per_job(job_count=4, **two_nodes) == 8
-    assert get_cores_per_job(job_count=5, **two_nodes) == 6
-
-
-def test_write_launcher_job_file():
-    os.environ['SLURM_JOB_NUM_NODES'] = str(1)
-    os.environ['SLURM_NTASKS'] = str(8)
-    os.environ['SLURM_JOB_CPUS_PER_NODE'] = str(16)
-    os.environ['SLURM_TASKS_PER_NODE'] = str(16)
-
-    write_launcher_job_file('/tmp/job_file', 'test-data', 'unit-test-work-{prefix}')
+    main()
