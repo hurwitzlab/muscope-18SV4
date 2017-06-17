@@ -10,7 +10,7 @@
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede-jklynch",
   "executionType": "HPC",
-  "helpURI": "http://protocols.io",
+  "helpURI": "https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn",
   "label": "muSCOPE 18S V4 QC",
   "longDescription": "muSCOPE 18S V4 QC",
   "modules": [],
