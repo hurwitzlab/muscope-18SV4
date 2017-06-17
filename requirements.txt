@@ -1,7 +1,8 @@
+numpy
 biopython
 cutadapt
-qiime>=1.9.1
-matplotlib>=2.0.0
+qiime
+matplotlib
 mock
 nose
 pytest
