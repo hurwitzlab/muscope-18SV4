@@ -33,10 +33,12 @@ def test__seq_length_cutoff_arguments_2():
         pipeline_18SV4.seq_length_cutoff(input_file=None, min_length=2, max_length=1, output_file=None)
 
 
-def test_fastq_join_binary_fp(pipeline):
+def test_fastq_join_binary_fp():
     fastq_join_binary_fp = 'fastq-join-from-env-var'
-    os.putenv('FASTQ_JOIN', fastq_join_binary_fp)
+    os.environ['FASTQ_JOIN'] = fastq_join_binary_fp
+    pipeline = get_pipeline()
     assert pipeline.fastq_join_binary_fp == fastq_join_binary_fp
+    del os.environ['FASTQ_JOIN']
 
 
 four_short_sequences_fasta = """\
@@ -75,6 +77,8 @@ def test_pipeline(uchime_ref_db_fp):
     functional_test_dir = os.path.join(here, '_functional_test_pipeline')
     shutil.rmtree(functional_test_dir, ignore_errors=True)
 
+
+
     assert not os.path.exists(functional_test_dir)
 
     pipeline_18SV4.Pipeline(
@@ -102,3 +106,14 @@ def test_pipeline(uchime_ref_db_fp):
     assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_06_remove_chimeras'))
     assert os.path.exists(os.path.join(functional_test_dir, 'Test01', 'step_06_remove_chimeras', 'Test01.assembled.clipped.combined.len.nc.fasta'))
 
+
+def get_pipeline(forward_reads_fp='',):
+    return pipeline_18SV4.Pipeline(
+        forward_reads_fp=forward_reads_fp,
+        forward_primer='',
+        reverse_primer='',
+        min_overlap=0,
+        uchime_ref_db_fp='',
+        work_dp='',
+        core_count=1
+    )
