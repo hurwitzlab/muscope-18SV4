@@ -46,7 +46,8 @@ def get_args():
     arg_parser.add_argument('--forward-primer', default='CCAGCASCYGCGGTAATTCC', help='forward primer to be clipped')
     arg_parser.add_argument('--reverse-primer', default='TYRATCAAGAACGAAAGT', help='reverse primer to be clipped')
     arg_parser.add_argument('--min-overlap', type=int, default=20, help='minimum overlap for joining paired ends')
-    arg_parser.add_argument('--uchime-ref-db-fp', default='/mu18SV4/pr2/pr2_gb203_version_4.5.fasta', help='database for vsearch --uchime_ref')
+    arg_parser.add_argument('--uchime-ref-db-fp', default='/mu18SV4/pr2/pr2_gb203_version_4.5.fasta',
+                            help='database for vsearch --uchime_ref')
     args = arg_parser.parse_args()
     return args
 
@@ -63,6 +64,8 @@ class Pipeline:
                  uchime_ref_db_fp,
                  work_dp, core_count):
 
+        log = logging.getLogger(name=self.__class__.__name__)
+
         self.forward_reads_fp = forward_reads_fp
         self.forward_primer = forward_primer
         self.reverse_primer = reverse_primer
@@ -71,13 +74,20 @@ class Pipeline:
         self.work_dp = work_dp
         self.core_count = core_count
 
-        self.prefix = get_reads_filename_prefix(forward_reads_fp)
+        self.prefix = None
 
-        self.fastq_join_binary_fp = os.getenv('FASTQ_JOIN', 'fastq-join')
-        print('fastq_join binary: "{}"'.format(self.fastq_join_binary_fp))
+        if 'FASTQ_JOIN' in os.environ:
+            self.fastq_join_binary_fp = os.environ['FASTQ_JOIN']
+        else:
+            self.fastq_join_binary_fp = 'fastq-join'
+        log.info('fastq_join binary: "%s"', self.fastq_join_binary_fp)
 
 
     def run(self):
+        log = logging.getLogger(name=self.__class__.__name__)
+
+        self.prefix = get_reads_filename_prefix(self.forward_reads_fp)
+
         # if self.work_dp does not exist then create it
         if not os.path.exists(self.work_dp):
             os.makedirs(self.work_dp)
@@ -116,7 +126,7 @@ class Pipeline:
 
         joined_reads_fp = os.path.abspath(os.path.join(output_dir, 'fastqjoin.join.fastq'))
         if not os.path.expanduser(joined_reads_fp):
-            raise Exception('failed to find joined reads file "{}"'.format(joined_reads_fp))
+            raise PipelineException('failed to find joined reads file "{}"'.format(joined_reads_fp))
         else:
             #return joined_reads_fp
             return output_dir
@@ -152,7 +162,7 @@ class Pipeline:
 
         split_fp = os.path.abspath(os.path.join(output_dir, 'seqs.fna'))
         if not os.path.exists(split_fp):
-            raise Exception('failed to find split libraries file "{}"'.format(split_fp))
+            raise PipelineException('failed to find split libraries file "{}"'.format(split_fp))
         else:
             return output_dir
 
@@ -306,7 +316,7 @@ def get_reads_filename_prefix(forward_reads_fp):
     _, forward_filename = os.path.split(forward_reads_fp)
     m = re.search('(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]_001\.', forward_filename)
     if m is None:
-        raise Exception('failed to parse filename "{}"'.format(forward_reads_fp))
+        raise PipelineException('failed to parse filename "{}"'.format(forward_reads_fp))
     else:
         return m.group('prefix')
 
@@ -362,7 +372,7 @@ def split_libraries_fastq(map_fp, joined_reads_fp, sample_ids, work_dp):
 
     split_fp = os.path.abspath(os.path.join(split_work_dp, 'seqs.fna'))
     if not os.path.exists(split_fp):
-        raise Exception('failed to find split libraries file "{}"'.format(split_fp))
+        raise PipelineException('failed to find split libraries file "{}"'.format(split_fp))
     else:
         return split_fp
 
