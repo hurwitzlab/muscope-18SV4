@@ -16,6 +16,6 @@ conda update conda
 conda update pip
 
 # install numpy explicitly or biom-format will not install
-conda install -y numpy
+conda install -y numpy=1.11
 
 pip install -e .[test]
