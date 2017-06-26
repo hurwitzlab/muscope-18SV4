@@ -29,9 +29,9 @@ container:
 
 iput-container:
 	irm muscope-18SV4.img
-	iput -K singularity/muscope-18SV4.img
+	iput -fKP singularity/muscope-18SV4.img
 
 iget-container:
-	iget -K muscope-18SV4.img
+	iget -fKP muscope-18SV4.img
 	mv muscope-18SV4.img stampede/
 
