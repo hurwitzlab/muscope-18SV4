@@ -3,7 +3,8 @@ From: ubuntu:latest
 
 %runscript
 
-    echo "Failte!"
+    export FASTQ_JOIN=/mu18SV4/fastq-join/fastq-join
+    pipeline
 
 %setup
     mkdir "$SINGULARITY_ROOTFS/muscope-18SV4"

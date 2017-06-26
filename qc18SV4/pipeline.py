@@ -56,7 +56,13 @@ class PipelineException(Exception):
 
 
 class Pipeline:
-    def __init__(self, forward_reads_fp, forward_primer, reverse_primer, min_overlap, uchime_ref_db_fp, work_dp, core_count):
+    def __init__(self,
+                 forward_reads_fp,
+                 forward_primer, reverse_primer,
+                 min_overlap,
+                 uchime_ref_db_fp,
+                 work_dp, core_count):
+
         self.forward_reads_fp = forward_reads_fp
         self.forward_primer = forward_primer
         self.reverse_primer = reverse_primer
@@ -66,6 +72,9 @@ class Pipeline:
         self.core_count = core_count
 
         self.prefix = get_reads_filename_prefix(forward_reads_fp)
+
+        self.fastq_join_binary_fp = os.getenv('FASTQ_JOIN', 'fastq-join')
+        print('fastq_join binary: "{}"'.format(self.fastq_join_binary_fp))
 
 
     def run(self):
@@ -90,34 +99,6 @@ class Pipeline:
         step_05_output_dir = self.step_05_length_filter(input_dir=step_04_output_dir)
         step_06_output_dir = self.step_06_remove_chimeras(input_dir=step_05_output_dir)
 
-        """    
-        forward_clipped_fp, reverse_clipped_fp = cut_primers(
-            prefix=prefix,
-            forward_primer=forward_primer,
-            reverse_primer=reverse_primer,
-            work_dp=work_dp,
-            input_fp=split_fp)
-    
-        combined_clipped_fp = combine_files(
-            forward_clipped_fp.replace('.regF.', '.combined.'),
-            forward_clipped_fp, reverse_clipped_fp)
-    
-        length_filtered_fp = re.sub('combined\.fasta$', 'combined.len.fasta', combined_clipped_fp)
-        with open(combined_clipped_fp, 'rt') as combined_clipped_file, open(length_filtered_fp, 'wt') as length_filtered_file:
-            seq_length_cutoff(
-                input_file=combined_clipped_file,
-                min_length=150,
-                max_length=500,
-                output_file=length_filtered_file)
-    
-        vsearch(
-            prefix=prefix,
-            work_dp=work_dp,
-            length_filtered_fp=length_filtered_fp,
-            core_count=core_count,
-            uchime_ref_db_fp=uchime_ref_db_fp)
-        """
-
 
     def step_01_join_paired_end_reads(self, output_dp):
         output_dir = create_output_dir(output_dp, sys._getframe().f_code.co_name)
@@ -125,7 +106,7 @@ class Pipeline:
         print('begin joined paired ends step')
         reverse_fp = get_reverse_reads_fp(self.forward_reads_fp)
         run_cmd([
-            'fastq-join',
+            self.fastq_join_binary_fp,
             '-m', str(self.min_overlap),
             self.forward_reads_fp,
             reverse_fp,
