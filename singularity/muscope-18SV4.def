@@ -22,7 +22,7 @@ From: ubuntu:latest
 
    # pycogent (QIIME dependency) refuses to install if numpy is not already installed
    # installing numpy first solves that problem
-   /usr/bin/pip install numpy=1.11
+   /usr/bin/pip install numpy==1.11
 
    /usr/bin/pip install /muscope-18SV4[dev,test]
 
