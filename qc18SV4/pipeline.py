@@ -57,12 +57,13 @@ class PipelineException(Exception):
 
 
 class Pipeline:
-    def __init__(self,
-                 forward_reads_fp,
-                 forward_primer, reverse_primer,
-                 min_overlap,
-                 uchime_ref_db_fp,
-                 work_dp, core_count):
+    def __init__(
+            self,
+            forward_reads_fp,
+            forward_primer, reverse_primer,
+            min_overlap,
+            uchime_ref_db_fp,
+            work_dp, core_count):
 
         log = logging.getLogger(name=self.__class__.__name__)
 
@@ -76,10 +77,7 @@ class Pipeline:
 
         self.prefix = None
 
-        if 'FASTQ_JOIN' in os.environ:
-            self.fastq_join_binary_fp = os.environ['FASTQ_JOIN']
-        else:
-            self.fastq_join_binary_fp = 'fastq-join'
+        self.fastq_join_binary_fp = os.environ.get('FASTQ_JOIN', 'fastq-join')
         log.info('fastq_join binary: "%s"', self.fastq_join_binary_fp)
 
 
@@ -93,22 +91,36 @@ class Pipeline:
             os.makedirs(self.work_dp)
 
         # write a directory under self.work_dp with name in self.prefix
-        # raise an exception if the directory already exists
-        # since this suggests the pipeline has already run for the given data and output directory
+        # if the directory exists just keep going
         output_dp = os.path.join(self.work_dp, self.prefix)
-        if os.path.exists(output_dp):
-            raise PipelineException('output directory {} already exists'.format(output_dp))
-        else:
-            os.mkdir(output_dp)
+        os.mkdir(output_dp)
 
+        output_dirs = []
         # the parent output directory is 'prefix'
-        step_01_output_dir = self.step_01_join_paired_end_reads(output_dp)
-        step_02_output_dir = self.step_02_split_libraries(input_dir=step_01_output_dir)
-        step_03_output_dir = self.step_03_cut_primers(input_dir=step_02_output_dir)
-        step_04_output_dir = self.step_04_combine_files(input_dir=step_03_output_dir)
-        step_05_output_dir = self.step_05_length_filter(input_dir=step_04_output_dir)
-        step_06_output_dir = self.step_06_remove_chimeras(input_dir=step_05_output_dir)
+        output_dirs.append(self.step_01_join_paired_end_reads(output_dp))
+        output_dirs.append(self.step_02_split_libraries(input_dir=output_dirs[-1]))
+        output_dirs.append(self.step_03_cut_primers(input_dir=output_dirs[-1]))
+        output_dirs.append(self.step_04_combine_files(input_dir=output_dirs[-1]))
+        output_dirs.append(self.step_05_length_filter(input_dir=output_dirs[-1]))
+        output_dirs.append(self.step_06_remove_chimeras(input_dir=output_dirs[-1]))
 
+        return output_dirs
+
+    def step_00_trim_primers(self, input_dir):
+        input_parent_dir, _ = os.path.split(input_dir)
+        cut_dp = create_output_dir(input_parent_dir, sys._getframe().f_code.co_name)
+
+        forward_fastq_fp = os.path.join(cut_dp, self.prefix + '_L001_R1_001.fastq')
+        forward_discard_fp = os.path.join(cut_dp, self.prefix + '.discard_regF.fasta')
+        reverse_fastq_fp = os.path.join(cut_dp, self.prefix + '_L001_R2_001.fastq')
+
+        input_fp = os.path.join(input_dir, 'seqs.fna')
+        run_cmd([
+            'TrimmomaticPE',
+            forward_fastq_fp, reverse_fastq_fp
+        ])
+
+        return cut_dp
 
     def step_01_join_paired_end_reads(self, output_dp):
         output_dir = create_output_dir(output_dp, sys._getframe().f_code.co_name)
