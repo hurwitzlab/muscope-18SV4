@@ -74,11 +74,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'numpy',
-        'biopython',
-        'cutadapt',
-        'qiime',
-        'matplotlib',
-        'subprocess32'
+        'biopython'
     ],
 
     # List additional groups of dependencies here (e.g. development
