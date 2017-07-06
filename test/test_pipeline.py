@@ -49,8 +49,8 @@ four_short_sequences_fasta = """\
 """
 
 def test__seq_length_cutoff_1():
-    input_buffer = io.BytesIO(four_short_sequences_fasta)
-    output_buffer = io.BytesIO()
+    input_buffer = io.StringIO(four_short_sequences_fasta)
+    output_buffer = io.StringIO()
     pipeline_18SV4.seq_length_cutoff(input_file=input_buffer, min_length=2, max_length=3, output_file=output_buffer)
     output_buffer.seek(0)
     filtered_sequences = tuple(SeqIO.parse(handle=output_buffer, format='fasta'))
@@ -60,8 +60,8 @@ def test__seq_length_cutoff_1():
 
 
 def test__seq_length_cutoff_2():
-    input_buffer = io.BytesIO(four_short_sequences_fasta)
-    output_buffer = io.BytesIO()
+    input_buffer = io.StringIO(four_short_sequences_fasta)
+    output_buffer = io.StringIO()
     pipeline_18SV4.seq_length_cutoff(input_file=input_buffer, min_length=2, max_length=2, output_file=output_buffer)
     output_buffer.seek(0)
     filtered_sequences = tuple(SeqIO.parse(handle=output_buffer, format='fasta'))
@@ -69,15 +69,13 @@ def test__seq_length_cutoff_2():
     assert filtered_sequences[0].seq == 'CG'
 
 
-@pytest.mark.xfail(reason='not able to find fastq-join with Travis CI')
-def test_pipeline(uchime_ref_db_fp):
+#@pytest.mark.xfail(reason='not able to find fastq-join with Travis CI')
+def test_pipeline():
     here = os.path.dirname(__file__)
     test_data_dir = os.path.join(here, 'data')
     test_data_fp = os.path.join(test_data_dir, 'Test01_L001_R1_001.fastq')
     functional_test_dir = os.path.join(here, '_functional_test_pipeline')
     shutil.rmtree(functional_test_dir, ignore_errors=True)
-
-
 
     assert not os.path.exists(functional_test_dir)
 
@@ -86,7 +84,7 @@ def test_pipeline(uchime_ref_db_fp):
         forward_primer='CCAGCASCYGCGGTAATTCC',
         reverse_primer='TYRATCAAGAACGAAAGT',
         min_overlap=20,
-        uchime_ref_db_fp=uchime_ref_db_fp,
+        uchime_ref_db_fp='',
         work_dp=functional_test_dir,  # removed {prefix}
         core_count=4).run()
 
