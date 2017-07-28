@@ -2,20 +2,18 @@
 
 VENV_NAME=18SV4
 
-#if [ -d "~/miniconda3/envs/${VENV_NAME}" ]; then
-  conda remove -y -n ${VENV_NAME} --all
+#if [ -d "~/venv/${VENV_NAME}" ]; then
+  rm -rf ~/venv/${VENV_NAME}
 #fi
 
 # there is a problem with VirtualBox shared filesystems
 # that prevents a Python virtual environment from being created
 # in a host directory
+# so use ~/venv/${VENV_NAME}
 
-conda create -y -n ${VENV_NAME} python=2.7
-source activate ${VENV_NAME}
-conda update conda
-conda update pip
-
-# install numpy explicitly or biom-format will not install
-conda install -y numpy=1.11
+python3 -m venv ~/venv/${VENV_NAME}
+source ~/venv/${VENV_NAME}/bin/activate
+pip install --upgrade pip
+pip install --upgrade setuptools wheel
 
 pip install -e .[test]

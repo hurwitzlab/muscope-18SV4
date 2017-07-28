@@ -27,22 +27,11 @@ From: ubuntu:latest
     # install trimmomatic
     apt install -y trimmomatic
 
-    # create a directory for installed dependencies
-    APP_DIR=/app
-    mkdir -p $APP_DIR
-    cd $APP_DIR
-
-    # install fastq-join
-    git clone https://github.com/brwnj/fastq-join
-    cd fastq-join
-    make
-
     # install fastx-toolkit
-    cd $APP_DIR
-    wget http://hannonlab.cshl.edu/fastx_toolkit/fastx_toolkit_0.0.13_binaries_Linux_2.6_amd64.tar.bz2
-    tar xvf fastx_toolkit_0.0.13_binaries_Linux_2.6_amd64.tar.bz2
-    rm fastx_toolkit_0.0.13_binaries_Linux_2.6_amd64.tar.bz2
-    mv bin fastxtk
+    apt install -y fastx-toolkit
+
+    # install ea-utils to get fastq-join
+    apt install -y ea-utils
 
     # create mount points for TACC directories
     mkdir /home1

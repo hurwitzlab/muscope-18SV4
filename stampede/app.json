@@ -11,17 +11,17 @@
   "executionSystem": "tacc-stampede-jklynch",
   "executionType": "HPC",
   "helpURI": "https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn",
-  "label": "muSCOPE 18S V4 QC",
-  "longDescription": "muSCOPE 18S V4 QC",
+  "label": "muSCOPE Caron-18S-Diversity-TagSeqQC",
+  "longDescription": "muSCOPE Caron-18S-Diversity-TagSeqQC",
   "modules": [],
-  "name": "muSCOPE-18SV4",
+  "name": "muSCOPE Caron-18S-Diversity-TagSeqQC",
   "ontology": [
     "http://sswapmeet.sswap.info/agave/apps/Application"
   ],
   "parallelism": "SERIAL",
-  "shortDescription": "muSCOPE 18S V4 QC",
+  "shortDescription": "muSCOPE Caron-18S-Diversity-TagSeqQC",
   "tags": [
-    "muscope",
+    "muSCOPE",
     "18S",
     "V4",
     "QC"
@@ -82,6 +82,40 @@
         "argument": "--reverse-primer",
         "description": "reverse primer",
         "label": "reverse primer",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "prefix regular expressio",
+      "value": {
+        "default": "^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]",
+        "required": true,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--prefix-regex",
+        "description": "Regular expression matching the input file name prefix",
+        "label": "Prefix regular expression",
+        "showArgument": true
+      }
+    },
+     {
+      "id": "phred",
+      "value": {
+        "default": "33",
+        "required": true,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--phred",
+        "description": "PHRED format (33 or 64)",
+        "label": "PHRED format",
         "showArgument": true
       }
     }

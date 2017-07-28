@@ -3,7 +3,9 @@ _*
 
 # singularity image
 *.img
+*.img.xz
 
+container_output
 work-*
 *.idea
 
