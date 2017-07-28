@@ -73,7 +73,7 @@ def write_launcher_job_file(
     with open(job_fp, 'wt') as job_file:
         for forward_fp, _ in forward_reverse_read_pairs:
             job_file.write(
-                'singularity exec singularity/muscope-18SV4.img pipeline '
+                'singularity exec muscope-18SV4.img pipeline '
                 + '-f {} '.format(forward_fp)
                 + '-w {} '.format(work_dp_template)
                 + '-c {} '.format(core_count)
