@@ -16,7 +16,7 @@ export LAUNCHER_JOB_FILE=`pwd`/${SLURM_JOB_ID}_launcher_jobfile
 echo ${LAUNCHER_JOB_FILE}
 
 xz --decompress --force muscope-18SV4.img.xz
-singularity exec muscope-18SV4.img write_launcher_job_file $@
+singularity exec muscope-18SV4.img write_launcher_job_file -j ${LAUNCHER_JOB_FILE} -w `pwd` $@
 sleep 10
 export LAUNCHER_PPN=2
 
