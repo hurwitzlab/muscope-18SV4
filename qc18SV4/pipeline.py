@@ -44,7 +44,7 @@ def get_args():
     arg_parser.add_argument('--forward-primer', default='CCAGCASCYGCGGTAATTCC', help='forward primer to be clipped')
     arg_parser.add_argument('--reverse-primer', default='TYRATCAAGAACGAAAGT', help='reverse primer to be clipped')
     arg_parser.add_argument('--min-overlap', type=int, default=20, help='minimum overlap for joining paired ends')
-    arg_parser.add_argument('--phred', default='64', help='Q33 or Q64')
+    arg_parser.add_argument('--phred', default='33', help='33 or 64')
     args = arg_parser.parse_args()
     return args
 

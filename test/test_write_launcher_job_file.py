@@ -1,5 +1,6 @@
 import os
 import shutil
+import tempfile
 
 import pytest
 
@@ -86,6 +87,11 @@ def test_write_launcher_job_file():
     os.mkdir(functional_test_dir)
 
     write_launcher_job_file(
-        os.path.join(functional_test_dir, '_functional_test_job_file'),
-        test_data_dir,
-        'unit-test-work-{prefix}')
+        job_fp=os.path.join(functional_test_dir, '_functional_test_job_file'),
+        input_dp=test_data_dir,
+        work_dp_template='unit-test-work-{prefix}',
+        forward_primer='ACGT',
+        reverse_primer='TGCA',
+        prefix_regex='^(?P<prefix>Test\d+)',
+        phred=33
+    )
