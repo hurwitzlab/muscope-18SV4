@@ -89,7 +89,7 @@
     {
       "id": "prefix_regular_expression",
       "value": {
-        "default": "^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]",
+        "default": "\"^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]\"",
         "required": true,
         "type": "string",
         "visible": true
