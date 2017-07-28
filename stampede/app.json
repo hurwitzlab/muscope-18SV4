@@ -46,7 +46,7 @@
       "details": {
         "description": "Directory of forward and reverse reads",
         "label": "Input directory (forward AND reverse reads)",
-        "argument": "",
+        "argument": "-i ",
         "showArgument": true
       }
     }
@@ -63,7 +63,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--forward-primer",
+        "argument": "--forward-primer ",
         "description": "forward primer",
         "label": "forward primer",
         "showArgument": true
@@ -80,7 +80,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--reverse-primer",
+        "argument": "--reverse-primer ",
         "description": "reverse primer",
         "label": "reverse primer",
         "showArgument": true
@@ -97,7 +97,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--prefix-regex",
+        "argument": "--prefix-regex ",
         "description": "Regular expression matching the input file name prefix",
         "label": "Prefix regular expression",
         "showArgument": true
@@ -114,7 +114,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--phred",
+        "argument": "--phred ",
         "description": "PHRED format (33 or 64)",
         "label": "PHRED format",
         "showArgument": true
@@ -131,7 +131,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--core-count",
+        "argument": "--core-count ",
         "description": "available cores",
         "label": "available cores",
         "showArgument": true
