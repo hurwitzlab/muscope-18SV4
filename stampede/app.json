@@ -14,7 +14,7 @@
   "label": "muSCOPE Caron-18S-Diversity-TagSeqQC",
   "longDescription": "muSCOPE Caron-18S-Diversity-TagSeqQC",
   "modules": [],
-  "name": "muSCOPE Caron-18S-Diversity-TagSeqQC",
+  "name": "muSCOPE-Caron-18S-Diversity-TagSeqQC",
   "ontology": [
     "http://sswapmeet.sswap.info/agave/apps/Application"
   ],
@@ -22,6 +22,7 @@
   "shortDescription": "muSCOPE Caron-18S-Diversity-TagSeqQC",
   "tags": [
     "muSCOPE",
+    "Caron",
     "18S",
     "V4",
     "QC"
