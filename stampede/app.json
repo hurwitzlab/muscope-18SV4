@@ -87,7 +87,7 @@
       }
     },
     {
-      "id": "prefix regular expressio",
+      "id": "prefix_regular_expression",
       "value": {
         "default": "^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]",
         "required": true,
@@ -119,7 +119,25 @@
         "label": "PHRED format",
         "showArgument": true
       }
+    },
+     {
+      "id": "core_count",
+      "value": {
+        "default": "16",
+        "required": true,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--core-count",
+        "description": "available cores",
+        "label": "available cores",
+        "showArgument": true
+      }
     }
+
   ],
   "outputs": []
 }

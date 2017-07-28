@@ -4,7 +4,7 @@ module load singularity
 
 echo "starting directory : `pwd`"
 echo "`ls -l`"
-echo "arguments: ${$@}"
+echo "arguments: $@"
 
 export LAUNCHER_DIR="$HOME/src/launcher"
 export LAUNCHER_PLUGIN_DIR=$LAUNCHER_DIR/plugins
