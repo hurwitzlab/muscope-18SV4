@@ -2,23 +2,23 @@ language: c
 sudo: required
 dist: trusty
 before_install:
-  - pwd
-  - cd /tmp
-  - git clone https://github.com/singularityware/singularity.git
-  - cd singularity
-  - ./autogen.sh
-  - ./configure --prefix=/usr/local
-  - make
-  - sudo make install
+- pwd
+- cd /tmp
+- git clone https://github.com/singularityware/singularity.git
+- cd singularity
+- "./autogen.sh"
+- "./configure --prefix=/usr/local"
+- make
+- sudo make install
 install:
-  - pwd
-  - cd /home/travis/build/hurwitzlab/muscope-18SV4
-  - ls -l
-  - make container
+- pwd
+- cd /home/travis/build/hurwitzlab/muscope-18SV4
+- ls -l
+- make container
 script:
-  - pwd
-  - ls -l
-  - singularity exec singularity/muscope-18SV4.img py.test test/
+- pwd
+- ls -l
+- singularity exec singularity/muscope-18SV4.img py.test test/
 notifications:
   slack:
-    secure: p2+DUt/0zVGq7MdWHcNhPz6jG8cRvJY/UL5ePHD1oFseBjEEQsZGYzBdFRA8hqx/Z3J6G8TyZHY2HbE/ki9ybN0ExDdFSR7XnlxxBjQP8Pk32qNmOEzZUzHAMWfz9rKln133nv0pqLLtMBSzLzZameMQPgVpoYjfdPogCZjUUttyrUSv6eyM5dWxcsChky0DsgEvXEY1TI+M25su7fTaQmhmkZnO5A3hNwmDZ6oyWrWn9/qa5gKo9YtWydVmRJZlwIFomD+VjUqepwFmS7J9AQpF8ilNYUv6wWkSKhw9HemcXnS2HCJ5OXk53Ghfj1gQUTJZdoZ9pITU+0GUBMDQisag2GWIWR6nz4fZr9n4JPzvQbFphKJgNQQ3VcT3SmwBkePSrPeTHvEPbcCfHibNN1QV62AteJWUvNvfgE5qHXriiPba/U4xmAI7el9ioWXgeC+EHGag01+zdVgbIzKb0cncIeL6EZ8H4pWD6Tny7YGbVM1x5upkx95OUJyFESooeBaDN8+jnp+ontIMDBuD2AGkRadd+YTRl3SDQYNeA4uh31eg64uKvGhBoUu2sdW9m33W0qHTBfv8b/sXVnPe5vHFhkL8uZIDaoMgiw9kU0nu8ZB1w2Zyy7/rrcgy8eelcWRpCqkgUCHB47KbWMv7/CD0PzOWyoEdHkRQN1Q291Y=
+    secure: MAHKY6vUciBM0pr4oKeKtEB+edS8x+WKIfg/Xr0oZ+QRqnmaZWKxAFhvyPLG1XAcKJ6HI/N9wzqAW4n1owxmAcswQB9kyehEv23Bjk0Fo0+8d9LX8rFyIy6yw3HG/+gxzX/haPMdneWjcu2WfXYe8QvYo1DEAUCzjbCUVmMAE+huRlvIkNPXgBcmSZ/NSlrtNu/Jays+E26zBKr1FIvWJIVbQdmur+yca+i/laetxEk2gdO0RELvxS9cTWTRXSV8vlTa3X6g/I1gC7SFk3MI/DYLV6ev3q+rf4hrK6+9cEpAqgbRlyH7X/vmi1RU5f9YuLQOmDEwAUaz9EWbb9pPkNfYASsN9Z9FORMAZifDLyNSXEfkwyOBF+uysiw4Ibrmo06EFfSJm7gp96JQJqewGV2d7XUherVOqOkmg49KwX7w8jYwJBVMme6XdlEVcoCHr63p6KOk2irnmZIGRrj68fkyGv5gNsouSYMvV8EEPzMGslCuYMhkUOYRxhtWfP6x6EZh1J2kgejybLk0DdoaHmkaFhNs6LQ233eUPeYmZv91AUiMlqlVyKyGK9jYrV3fJ20/D8k1Pa9EqE7MYNrsMUDZdC/0SfPJgrVQ33lmvJpfiGYcG0KguWJIwooAYBPphmA7X6URZ1Mjb/C7YZ4eMYjvDQSI8QxE4CbmdzQei44=
