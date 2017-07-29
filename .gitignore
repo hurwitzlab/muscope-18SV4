@@ -5,7 +5,7 @@ _*
 *.img
 *.img.xz
 
-container_output
+output_*
 work-*
 *.idea
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-rm -rf test/output_container
-mkdir test/output_container
+rm -rf test/output_pipeline
+mkdir test/output_pipeline
 
-time singularity run singularity/muscope-18SV4.img \
+time pipeline \
   --forward-reads-fp ./test/data/Test01_L001_R1_001.fastq \
-  --work-dp ./test/output_container/work \
+  --work-dp ./test/output_pipeline/work \
   --core-count 2 \
   --phred 33 \
   --prefix-regex "^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]"

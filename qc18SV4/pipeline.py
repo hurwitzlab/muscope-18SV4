@@ -18,15 +18,17 @@ All output will be written to directory work-dp.
 """
 import argparse
 import glob
+import gzip
 import logging
 import os
 import re
+import subprocess
 import sys
 import traceback
 
-import subprocess
-
 from Bio import SeqIO
+
+from qc18SV4.pipeline_util import delete_files, gzip_files, ungzip_files
 
 
 def main():
@@ -123,13 +125,13 @@ class Pipeline:
         reverse_fastq_basename = os.path.basename(reverse_reads_fp)
 
         output1P_fp = os.path.join(
-            trim_dp, re.sub(string=forward_fastq_basename, pattern=r'\.fastq', repl='.trim1p.fastq'))
+            trim_dp, re.sub(string=forward_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim1p.fastq.gz'))
         output1U_fp = os.path.join(
-            trim_dp, re.sub(string=forward_fastq_basename, pattern=r'\.fastq', repl='.trim1u.fastq'))
+            trim_dp, re.sub(string=forward_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim1u.fastq.gz'))
         output2P_fp = os.path.join(
-            trim_dp, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq', repl='.trim2p.fastq'))
+            trim_dp, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim2p.fastq.gz'))
         output2U_fp = os.path.join(
-            trim_dp, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq', repl='.trim2u.fastq'))
+            trim_dp, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim2u.fastq.gz'))
 
         primer_fp = os.path.join(trim_dp, 'trimPE.fasta')
 
@@ -159,26 +161,46 @@ class Pipeline:
 
         print('begin joined paired ends step')
 
-        trimmed_reads_file_glob = os.path.join(input_dir, '{}*.trim[12]p.fastq'.format(self.prefix))
+        trimmed_reads_file_glob = os.path.join(input_dir, '{}*.trim[12]p.fastq.gz'.format(self.prefix))
         log.info('trimmed reads file glob: %s', trimmed_reads_file_glob)
         trimmed_reads_files = glob.glob(trimmed_reads_file_glob)
         log.info('trimmed reads files:\n\t%s', '\n\t'.join(trimmed_reads_files))
         trimmed_forward_reads_fp, trimmed_reverse_reads_fp = sorted(trimmed_reads_files)
 
-        joined_reads_fp = os.path.join(
+        uncompressed_trimmed_forward_reads_fp, uncompressed_trimmed_reverse_reads_fp = ungzip_files(
+            trimmed_forward_reads_fp,
+            trimmed_reverse_reads_fp
+        )
+
+        joined_reads_pattern_fp = os.path.join(
             output_dp,
             re.sub(
-                string=os.path.basename(trimmed_forward_reads_fp),
+                string=os.path.basename(uncompressed_trimmed_forward_reads_fp),
                 pattern=r'\.trim1p.fastq$',
-                repl='.trim.%.fastq'))
+                repl='.trim.%.fastq'
+            )
+        )
 
         run_cmd([
             'fastq-join',
-            trimmed_forward_reads_fp,
-            trimmed_reverse_reads_fp,
+            uncompressed_trimmed_forward_reads_fp,
+            uncompressed_trimmed_reverse_reads_fp,
             '-m', '20',
-            '-o', joined_reads_fp
+            '-o', joined_reads_pattern_fp
         ])
+
+        output_file_glob = os.path.join(output_dp, '{}*.trim.*.fastq'.format(self.prefix))
+        log.info('fastq-join output file glob: %s', output_file_glob)
+        output_file_list = glob.glob(output_file_glob)
+        log.info('fastq-join output files:\n\t%s', '\n\t'.join(output_file_list))
+
+        gzip_files(*output_file_list)
+
+        delete_files(
+            uncompressed_trimmed_forward_reads_fp,
+            uncompressed_trimmed_reverse_reads_fp,
+            *output_file_list
+        )
 
         self.complete_step(log, output_dp)
         return output_dp
@@ -189,15 +211,17 @@ class Pipeline:
 
         print('begin quality filtering step')
 
-        joined_reads_file_glob = os.path.join(input_dir, '{}*.join.fastq'.format(self.prefix))
+        joined_reads_file_glob = os.path.join(input_dir, '{}*.join.fastq*'.format(self.prefix))
         log.info('trimmed reads file glob: %s', joined_reads_file_glob)
         joined_reads_fp = glob.glob(joined_reads_file_glob)[0]
         log.info('joined reads file: %s', joined_reads_fp)
 
+        ungzipped_joined_reads_fp, *_ = ungzip_files(joined_reads_fp)
+
         quality_filtered_reads_fp = os.path.join(
             output_dp,
             re.sub(
-                string=os.path.basename(joined_reads_fp),
+                string=os.path.basename(ungzipped_joined_reads_fp),
                 pattern=r'\.fastq$',
                 repl='.quality.fastq'))
 
@@ -206,7 +230,7 @@ class Pipeline:
 
         run_cmd([
             'fastq_quality_filter',
-            '-i', joined_reads_fp,
+            '-i', ungzipped_joined_reads_fp,
             '-o', quality_filtered_reads_fp,
             '-v',
             '-q', str(quality_cutoff),
@@ -214,21 +238,38 @@ class Pipeline:
             '-Q{}'.format(self.phred)
         ])
 
+        delete_files(ungzipped_joined_reads_fp)
+
+        gzip_files(quality_filtered_reads_fp)
+
         self.complete_step(log, output_dp)
         return output_dp
 
 
     def step_04_fasta_format(self, input_dir):
+        """
+        fastq_to_fasta does not read gzipped files but it will write them,
+        but in this step it writes uncompressed output files and they are
+        separately compressed. The next step will use the uncompressed files
+        and then delete them.
+
+        This step reads uncompressed files from the previous step and
+        then deletes them.
+
+        :param input_dir: directory of input files
+        :return: directory of output files
+        """
         log, output_dp = self.initialize_step()
 
         print('begin FASTA format step')
 
         fastq_file_glob = os.path.join(input_dir, '{}*.fastq'.format(self.prefix))
         log.info('FASTQ file glob: %s', fastq_file_glob)
-        fastq_file_list = glob.glob(fastq_file_glob)
-        log.info('FASTQ file list:\n\t%s', '\n\t'.join(fastq_file_list))
+        ungzipped_fastq_file_list = glob.glob(fastq_file_glob)
+        log.info('FASTQ file list:\n\t%s', '\n\t'.join(ungzipped_fastq_file_list))
 
-        for fastq_fp in fastq_file_list:
+        fasta_output_file_list = []
+        for fastq_fp in ungzipped_fastq_file_list:
             fasta_fp = os.path.join(
                 output_dp,
                 re.sub(
@@ -246,6 +287,11 @@ class Pipeline:
                 '-v',
                 '-r'
             ])
+            fasta_output_file_list.append(fasta_fp)
+
+        delete_files(*ungzipped_fastq_file_list)
+
+        gzip_files(*fasta_output_file_list)
 
         self.complete_step(log=log, output_dir=output_dp)
         return output_dp
@@ -261,6 +307,7 @@ class Pipeline:
         fasta_file_list = glob.glob(fasta_file_glob)
         log.info('FASTA file list:\n\t%s', '\n\t'.join(fasta_file_list))
 
+        length_filtered_file_list = []
         for fasta_fp in fasta_file_list:
             length_filtered_fp = os.path.join(
                 output_dp,
@@ -280,6 +327,12 @@ class Pipeline:
                 '-v',
             ])
 
+            length_filtered_file_list.append(length_filtered_fp)
+
+        delete_files(*fasta_file_list)
+        gzip_files(*length_filtered_file_list)
+        delete_files(*length_filtered_file_list)
+
         self.complete_step(log=log, output_dir=output_dp)
         return output_dp
 
@@ -289,7 +342,7 @@ class Pipeline:
 
         print('begin sequence id rewrite step')
 
-        fasta_file_glob = os.path.join(input_dir, '{}*.fasta'.format(self.prefix))
+        fasta_file_glob = os.path.join(input_dir, '{}*.fasta.gz'.format(self.prefix))
         log.info('FASTA file glob: %s', fasta_file_glob)
         fasta_file_list = glob.glob(fasta_file_glob)
         log.info('FASTA file list:\n\t%s', '\n\t'.join(fasta_file_list))
@@ -299,12 +352,12 @@ class Pipeline:
                 output_dp,
                 re.sub(
                     string=os.path.basename(fasta_fp),
-                    pattern='\.fasta$',
-                    repl='.id.fasta'
+                    pattern='\.fasta.gz$',
+                    repl='.id.fasta.gz'
                 )
             )
 
-            with open(fasta_fp, 'rt') as input_file, open(rewritten_sequence_id_fp, 'wt') as output_file:
+            with gzip.open(fasta_fp, 'rt') as input_file, gzip.open(rewritten_sequence_id_fp, 'wt') as output_file:
                 for seq_record in SeqIO.parse(input_file, format='fasta'):
                     seq_record.id = '{}_{}'.format(self.prefix, seq_record.id)
                     # if description does not match id it will be printed
