@@ -1,0 +1,6 @@
+#!/bin/bash -i
+
+# specify -n on the command line for a dry run
+
+rsync $1 -arvzP --delete --exclude-from=exclude.rsync -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/muscope-18SV4
+
