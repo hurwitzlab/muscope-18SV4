@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 
+from qc18SV4.pipeline import PipelineException
 from qc18SV4.write_launcher_job_file import get_file_path_pairs, get_cores_per_job, write_launcher_job_file
 
 
@@ -72,6 +73,21 @@ def test_get_cores_per_job():
     assert get_cores_per_job(job_count=3, **two_nodes) == 10
     assert get_cores_per_job(job_count=4, **two_nodes) == 8
     assert get_cores_per_job(job_count=5, **two_nodes) == 6
+
+
+def test_no_files_found():
+    with tempfile.TemporaryDirectory() as input_dir, tempfile.TemporaryDirectory() as output_dir:
+        # no files in the input directory
+        with pytest.raises(PipelineException):
+            write_launcher_job_file(
+                job_fp=os.path.join(output_dir, 'launcher_job_file'),
+                input_dp=input_dir,
+                work_dp_template='unit-test-work-{prefix}',
+                forward_primer='ACGT',
+                reverse_primer='TGCA',
+                prefix_regex='^(?P<prefix>Test\d+)',
+                phred=33
+            )
 
 
 def test_write_launcher_job_file():

@@ -3,8 +3,11 @@ import logging
 import os
 import tempfile
 
+import pytest
+
 import qc18SV4.pipeline as pipeline_18SV4
-from qc18SV4.pipeline_util import gzip_files
+from qc18SV4.pipeline import PipelineException
+from qc18SV4.pipeline_util import get_sorted_file_list, gzip_files
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -19,6 +22,12 @@ def test_get_reads_filename_prefix():
     with tempfile.TemporaryDirectory() as work_dir:
         prefix = get_pipeline(work_dir=work_dir).get_reads_filename_prefix(forward_reads_fp='/a/b/c_d_L001_R1_001.fastq')
         assert prefix == 'c_d'
+
+
+def test_get_reads_filename_prefix__exception():
+    with tempfile.TemporaryDirectory() as input_dir, tempfile.TemporaryDirectory() as work_dir:
+        with pytest.raises(PipelineException):
+            get_pipeline(work_dir=work_dir, forward_reads_fp='this_will_not_match_prefix_re.fastq')
 
 
 def get_pipeline(
@@ -69,15 +78,21 @@ def test_step_01_trim_primers():
         assert os.path.exists(output_dir)
         assert os.path.isdir(output_dir)
 
-        output_file_list = sorted(os.listdir(output_dir))
+        output_file_list = get_sorted_file_list(output_dir)
         print(output_file_list)
-        assert len(output_file_list) == 5
+        assert len(output_file_list) == 6
+        assert output_file_list[0].name == 'log'
+        assert output_file_list[1].name == 'trimPE.fasta'
+        assert output_file_list[2].name == 'unittest_L001_R1.trim1p.fastq.gz'
+        assert output_file_list[3].name == 'unittest_L001_R1.trim1u.fastq.gz'
+        assert output_file_list[4].name == 'unittest_L001_R2.trim2p.fastq.gz'
+        assert output_file_list[5].name == 'unittest_L001_R2.trim2u.fastq.gz'
 
-        forward_output_fp = os.path.join(output_dir, output_file_list[1])
+        forward_output_fp = os.path.join(output_dir, output_file_list[2].name)
         with gzip.open(forward_output_fp, 'rt') as forward_output:
             assert forward_output.read() == '@read_1 forward\n{}\n+\n{}\n'.format(forward_read, forward_qual)
 
-        reverse_output_fp = os.path.join(output_dir, output_file_list[3])
+        reverse_output_fp = os.path.join(output_dir, output_file_list[4].name)
         with gzip.open(reverse_output_fp, 'rt') as reverse_output:
             assert reverse_output.read() == '@read_1 reverse\n{}\n+\n{}\n'.format(reverse_read, reverse_qual)
 
@@ -108,11 +123,12 @@ def test_step_02_join_paired_end_reads():
         assert os.path.exists(output_dir)
         assert os.path.isdir(output_dir)
 
-        output_file_list = sorted(os.listdir(output_dir))
-        assert len(output_file_list) == 3
-        assert output_file_list[0] == 'unittest.trim.join.fastq.gz'
-        assert output_file_list[1] == 'unittest.trim.un1.fastq.gz'
-        assert output_file_list[2] == 'unittest.trim.un2.fastq.gz'
+        output_file_list = get_sorted_file_list(output_dir)
+        assert len(output_file_list) == 4
+        assert output_file_list[0].name == 'log'
+        assert output_file_list[1].name == 'unittest.trim.join.fastq.gz'
+        assert output_file_list[2].name == 'unittest.trim.un1.fastq.gz'
+        assert output_file_list[3].name == 'unittest.trim.un2.fastq.gz'
 
 
 def test_step_03_quality_filter():
@@ -126,11 +142,11 @@ def test_step_03_quality_filter():
         assert os.path.exists(output_dir)
         assert os.path.isdir(output_dir)
 
-        output_file_list = sorted(os.listdir(output_dir))
-        assert len(output_file_list) == 2
-
-        assert output_file_list[0] == 'unittest.trim.join.quality.fastq'
-        assert output_file_list[1] == 'unittest.trim.join.quality.fastq.gz'
+        output_file_list = get_sorted_file_list(output_dir)
+        assert len(output_file_list) == 3
+        assert output_file_list[0].name == 'log'
+        assert output_file_list[1].name == 'unittest.trim.join.quality.fastq'
+        assert output_file_list[2].name == 'unittest.trim.join.quality.fastq.gz'
 
 
 def test_step_04_fasta_format():
@@ -144,10 +160,11 @@ def test_step_04_fasta_format():
         assert os.path.exists(output_dir)
         assert os.path.isdir(output_dir)
 
-        output_file_list = sorted(os.listdir(output_dir))
-        assert len(output_file_list) == 2
-        assert output_file_list[0] == 'unittest.trim.join.quality.fasta'
-        assert output_file_list[1] == 'unittest.trim.join.quality.fasta.gz'
+        output_file_list = get_sorted_file_list(output_dir)
+        assert len(output_file_list) == 3
+        assert output_file_list[0].name == 'log'
+        assert output_file_list[1].name == 'unittest.trim.join.quality.fasta'
+        assert output_file_list[2].name == 'unittest.trim.join.quality.fasta.gz'
 
 
 def test_step_05_length_filter():
@@ -161,9 +178,10 @@ def test_step_05_length_filter():
         assert os.path.exists(output_dir)
         assert os.path.isdir(output_dir)
 
-        output_file_list = sorted(os.listdir(output_dir))
-        assert len(output_file_list) == 1
-        assert output_file_list[0] == 'unittest.trim.join.quality.length.fasta.gz'
+        output_file_list = get_sorted_file_list(output_dir)
+        assert len(output_file_list) == 2
+        assert output_file_list[0].name == 'log'
+        assert output_file_list[1].name == 'unittest.trim.join.quality.length.fasta.gz'
 
 
 def test_step_06_rewrite_sequence_ids():
@@ -179,9 +197,9 @@ def test_step_06_rewrite_sequence_ids():
         assert os.path.exists(output_dir)
         assert os.path.isdir(output_dir)
 
-        output_file_list = sorted(os.listdir(output_dir))
+        output_file_list = get_sorted_file_list(output_dir)
         assert len(output_file_list) == 1
-        assert output_file_list[0] == 'unittest.quality.id.fasta.gz'
+        assert output_file_list[0].name == 'unittest.quality.id.fasta.gz'
 
-        with gzip.open(os.path.join(output_dir, output_file_list[0]), 'rt') as output_file:
+        with gzip.open(os.path.join(output_dir, output_file_list[0].name), 'rt') as output_file:
             assert output_file.readlines()[0] == '>unittest_1\n'

@@ -114,10 +114,26 @@ class Pipeline:
             raise PipelineException('ERROR: no output files in directory "{}"'.format(output_dir))
         else:
             log.info('output files:\n\t%s', '\n\t'.join(os.listdir(output_dir)))
-
+            # apply FastQC to all .fastq and .fasta files
+            fastqc_output_dir = os.path.join(output_dir, 'fastqc_results')
+            os.makedirs(fastqc_output_dir, exist_ok=True)
+            run_cmd(
+                [
+                    'fastqc',
+                    '--threads', str(self.core_count),
+                    '--outdir', fastqc_output_dir,
+                    *[
+                        os.path.abspath(os.path.join(output_dir, output_file))
+                        for output_file
+                        in output_dir_list
+                        if re.search(pattern=r'\.fast[aq](\.gz)?$', string=output_file)
+                    ]
+                ],
+                log_file=os.path.join(fastqc_output_dir, 'log')
+            )
 
     def step_01_trim_primers(self):
-        log, trim_dp = self.initialize_step()
+        log, output_dir = self.initialize_step()
 
         forward_fastq_basename = os.path.basename(self.forward_reads_fp)
         reverse_reads_fp = get_reverse_reads_fp(self.forward_reads_fp)
@@ -125,39 +141,40 @@ class Pipeline:
         reverse_fastq_basename = os.path.basename(reverse_reads_fp)
 
         output1P_fp = os.path.join(
-            trim_dp, re.sub(string=forward_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim1p.fastq.gz'))
+            output_dir, re.sub(string=forward_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim1p.fastq.gz'))
         output1U_fp = os.path.join(
-            trim_dp, re.sub(string=forward_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim1u.fastq.gz'))
+            output_dir, re.sub(string=forward_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim1u.fastq.gz'))
         output2P_fp = os.path.join(
-            trim_dp, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim2p.fastq.gz'))
+            output_dir, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim2p.fastq.gz'))
         output2U_fp = os.path.join(
-            trim_dp, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim2u.fastq.gz'))
+            output_dir, re.sub(string=reverse_fastq_basename, pattern=r'\.fastq(\.gz)?', repl='.trim2u.fastq.gz'))
 
-        primer_fp = os.path.join(trim_dp, 'trimPE.fasta')
+        primer_fp = os.path.join(output_dir, 'trimPE.fasta')
 
         with open(primer_fp, 'wt') as primer_file:
             primer_file.write('>Prefix/1\n{}\n>Prefix/2\n{}\n'.format(self.forward_primer, self.reverse_primer))
 
         run_cmd([
-            'TrimmomaticPE',
-            self.forward_reads_fp, reverse_reads_fp,
-            output1P_fp,
-            output1U_fp,
-            output2P_fp,
-            output2U_fp,
-            'LEADING:10',
-            'TRAILING:10',
-            'SLIDINGWINDOW:10:30',
-            'MINLEN:{}'.format(self.trimmomatic_minlen),
-            'ILLUMINACLIP:{}:2:30:10'.format(primer_fp)  # was 2:30:10
-        ])
+                'TrimmomaticPE',
+                self.forward_reads_fp, reverse_reads_fp,
+                output1P_fp,
+                output1U_fp,
+                output2P_fp,
+                output2U_fp,
+                'LEADING:10',
+                'TRAILING:10',
+                'SLIDINGWINDOW:10:30',
+                'MINLEN:{}'.format(self.trimmomatic_minlen),
+                'ILLUMINACLIP:{}:2:30:10'.format(primer_fp)
+            ], log_file=os.path.join(output_dir, 'log')
+        )
 
-        self.complete_step(log, trim_dp)
-        return trim_dp
+        self.complete_step(log, output_dir)
+        return output_dir
 
 
     def step_02_join_paired_end_reads(self, input_dir):
-        log, output_dp = self.initialize_step()
+        log, output_dir = self.initialize_step()
 
         print('begin joined paired ends step')
 
@@ -173,7 +190,7 @@ class Pipeline:
         )
 
         joined_reads_pattern_fp = os.path.join(
-            output_dp,
+            output_dir,
             re.sub(
                 string=os.path.basename(uncompressed_trimmed_forward_reads_fp),
                 pattern=r'\.trim1p.fastq$',
@@ -182,14 +199,16 @@ class Pipeline:
         )
 
         run_cmd([
-            'fastq-join',
-            uncompressed_trimmed_forward_reads_fp,
-            uncompressed_trimmed_reverse_reads_fp,
-            '-m', '20',
-            '-o', joined_reads_pattern_fp
-        ])
+                'fastq-join',
+                uncompressed_trimmed_forward_reads_fp,
+                uncompressed_trimmed_reverse_reads_fp,
+                '-m', '20',
+                '-o', joined_reads_pattern_fp
+            ],
+            log_file=os.path.join(output_dir, 'log')
+        )
 
-        output_file_glob = os.path.join(output_dp, '{}*.trim.*.fastq'.format(self.prefix))
+        output_file_glob = os.path.join(output_dir, '{}*.trim.*.fastq'.format(self.prefix))
         log.info('fastq-join output file glob: %s', output_file_glob)
         output_file_list = glob.glob(output_file_glob)
         log.info('fastq-join output files:\n\t%s', '\n\t'.join(output_file_list))
@@ -202,12 +221,12 @@ class Pipeline:
             *output_file_list
         )
 
-        self.complete_step(log, output_dp)
-        return output_dp
+        self.complete_step(log, output_dir)
+        return output_dir
 
 
     def step_03_quality_filter(self, input_dir):
-        log, output_dp = self.initialize_step()
+        log, output_dir = self.initialize_step()
 
         print('begin quality filtering step')
 
@@ -219,7 +238,7 @@ class Pipeline:
         ungzipped_joined_reads_fp, *_ = ungzip_files(joined_reads_fp)
 
         quality_filtered_reads_fp = os.path.join(
-            output_dp,
+            output_dir,
             re.sub(
                 string=os.path.basename(ungzipped_joined_reads_fp),
                 pattern=r'\.fastq$',
@@ -229,21 +248,22 @@ class Pipeline:
         min_percentage = 90
 
         run_cmd([
-            'fastq_quality_filter',
-            '-i', ungzipped_joined_reads_fp,
-            '-o', quality_filtered_reads_fp,
-            '-v',
-            '-q', str(quality_cutoff),
-            '-p', str(min_percentage),
-            '-Q{}'.format(self.phred)
-        ])
+                'fastq_quality_filter',
+                '-i', ungzipped_joined_reads_fp,
+                '-o', quality_filtered_reads_fp,
+                '-v',
+                '-q', str(quality_cutoff),
+                '-p', str(min_percentage),
+                '-Q{}'.format(self.phred)
+            ], log_file=os.path.join(output_dir, 'log')
+        )
 
         delete_files(ungzipped_joined_reads_fp)
 
         gzip_files(quality_filtered_reads_fp)
 
-        self.complete_step(log, output_dp)
-        return output_dp
+        self.complete_step(log, output_dir)
+        return output_dir
 
 
     def step_04_fasta_format(self, input_dir):
@@ -259,7 +279,7 @@ class Pipeline:
         :param input_dir: directory of input files
         :return: directory of output files
         """
-        log, output_dp = self.initialize_step()
+        log, output_dir = self.initialize_step()
 
         print('begin FASTA format step')
 
@@ -271,7 +291,7 @@ class Pipeline:
         fasta_output_file_list = []
         for fastq_fp in ungzipped_fastq_file_list:
             fasta_fp = os.path.join(
-                output_dp,
+                output_dir,
                 re.sub(
                     string=os.path.basename(fastq_fp),
                     pattern='\.fastq$',
@@ -280,25 +300,26 @@ class Pipeline:
             )
 
             run_cmd([
-                'fastq_to_fasta',
-                '-i', fastq_fp,
-                '-o', fasta_fp,
-                '-n',
-                '-v',
-                '-r'
-            ])
+                    'fastq_to_fasta',
+                    '-i', fastq_fp,
+                    '-o', fasta_fp,
+                    '-n',
+                    '-v',
+                    '-r'
+                ], log_file=os.path.join(output_dir, 'log')
+            )
             fasta_output_file_list.append(fasta_fp)
 
         delete_files(*ungzipped_fastq_file_list)
 
         gzip_files(*fasta_output_file_list)
 
-        self.complete_step(log=log, output_dir=output_dp)
-        return output_dp
+        self.complete_step(log=log, output_dir=output_dir)
+        return output_dir
 
 
     def step_05_length_filter(self, input_dir):
-        log, output_dp = self.initialize_step()
+        log, output_dir = self.initialize_step()
 
         print('begin FASTA format step')
 
@@ -310,7 +331,7 @@ class Pipeline:
         length_filtered_file_list = []
         for fasta_fp in fasta_file_list:
             length_filtered_fp = os.path.join(
-                output_dp,
+                output_dir,
                 re.sub(
                     string=os.path.basename(fasta_fp),
                     pattern='\.fasta$',
@@ -319,13 +340,14 @@ class Pipeline:
             )
 
             run_cmd([
-                'fastx_clipper',
-                '-i', fasta_fp,
-                '-o', length_filtered_fp,
-                '-l', str(50),
-                '-n',
-                '-v',
-            ])
+                    'fastx_clipper',
+                    '-i', fasta_fp,
+                    '-o', length_filtered_fp,
+                    '-l', str(50),
+                    '-n',
+                    '-v',
+                ], log_file=os.path.join(output_dir, 'log')
+            )
 
             length_filtered_file_list.append(length_filtered_fp)
 
@@ -333,12 +355,12 @@ class Pipeline:
         gzip_files(*length_filtered_file_list)
         delete_files(*length_filtered_file_list)
 
-        self.complete_step(log=log, output_dir=output_dp)
-        return output_dp
+        self.complete_step(log=log, output_dir=output_dir)
+        return output_dir
 
 
     def step_06_rewrite_sequence_ids(self, input_dir):
-        log, output_dp = self.initialize_step()
+        log, output_dir = self.initialize_step()
 
         print('begin sequence id rewrite step')
 
@@ -349,7 +371,7 @@ class Pipeline:
 
         for fasta_fp in fasta_file_list:
             rewritten_sequence_id_fp = os.path.join(
-                output_dp,
+                output_dir,
                 re.sub(
                     string=os.path.basename(fasta_fp),
                     pattern='\.fasta.gz$',
@@ -365,8 +387,8 @@ class Pipeline:
                     seq_record.description = seq_record.id
                     SeqIO.write(seq_record, output_file, format='fasta')
 
-        self.complete_step(log=log, output_dir=output_dp)
-        return output_dp
+        self.complete_step(log=log, output_dir=output_dir)
+        return output_dir
 
 
     def get_reads_filename_prefix(self, forward_reads_fp):
@@ -381,21 +403,27 @@ class Pipeline:
             return m.group('prefix')
 
 
-def run_cmd(cmd_line_list, **kwargs):
+def run_cmd(cmd_line_list, log_file, **kwargs):
+    log = logging.getLogger(name=__name__)
     try:
-        print(' '.join(cmd_line_list))
-        output = subprocess.check_output(
-            cmd_line_list,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-            **kwargs)
-        print(output)
+        with open(log_file, 'at') as log_file:
+            log.info('executing "%s"', ' '.join((str(x) for x in cmd_line_list)))
+            output = subprocess.run(
+                cmd_line_list,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+                **kwargs)
+            log.info(output)
+        return output
     except subprocess.CalledProcessError as c:
-        #print(c.message)
+        logging.exception(c)
+        print(c.message)
         print(c.cmd)
         print(c.output)
         raise c
     except Exception as e:
+        logging.exception(e)
         print('blarg!')
         print(e)
         traceback.print_exc()

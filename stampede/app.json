@@ -6,20 +6,20 @@
   "defaultMaxRunTime": "12:00:00",
   "defaultNodeCount": 1,
   "defaultQueue": "serial",
-  "deploymentPath": "jklynch/applications/muscope-18SV4-0.0.3/stampede",
+  "deploymentPath": "jklynch/applications/muscope-18SV4-1.0.0/stampede",
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede-jklynch",
   "executionType": "HPC",
   "helpURI": "https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn",
-  "label": "muSCOPE Caron-18S-Diversity-TagSeqQC",
-  "longDescription": "muSCOPE Caron-18S-Diversity-TagSeqQC",
+  "label": "muSCOPE Caron-18S-V4-Diversity-TagSeqQC",
+  "longDescription": "muSCOPE Caron-18S-V4-Diversity-TagSeqQC",
   "modules": [],
-  "name": "muSCOPE-Caron-18S-Diversity-TagSeqQC",
+  "name": "muSCOPE-Caron-18S-V4-Diversity-TagSeqQC",
   "ontology": [
     "http://sswapmeet.sswap.info/agave/apps/Application"
   ],
   "parallelism": "SERIAL",
-  "shortDescription": "muSCOPE Caron-18S-Diversity-TagSeqQC",
+  "shortDescription": "muSCOPE Caron-18S-V4-Diversity-TagSeqQC",
   "tags": [
     "muSCOPE",
     "Caron",
@@ -29,7 +29,7 @@
   ],
   "templatePath": "template.sh",
   "testPath": "test.sh",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "inputs": [
     {
       "id": "INPUT_DIR",

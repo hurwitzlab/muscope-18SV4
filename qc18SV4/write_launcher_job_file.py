@@ -6,6 +6,8 @@ import glob
 import math
 import os
 
+from .pipeline import PipelineException
+
 
 def get_args():
     arg_parser = argparse.ArgumentParser()
@@ -41,7 +43,7 @@ def write_launcher_job_file(
     reverse_read_file_path_set = glob.glob(os.path.join(input_dp, '*_R2*'))
 
     if len(forward_read_file_path_set) == 0:
-        raise Exception('found no forward read files in directory "{}"'.format(input_dp))
+        raise PipelineException('found no forward read files in directory "{}"'.format(input_dp))
     # this script will run in muscope-18SV4/stampede but Launcher
     # jobs will run in the Launcher's work directory
     # so specify absolute paths

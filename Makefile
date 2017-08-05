@@ -1,5 +1,5 @@
 APP = muscope-18SV4
-VERSION = 0.0.3
+VERSION = 1.0.0
 EMAIL = jklynch@email.arizona.edu
 
 clean:
@@ -26,6 +26,7 @@ container:
 	rm -f singularity/$(APP).img
 	sudo singularity create --size 2000 singularity/$(APP).img
 	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def singularity/$(APP).img
 
 iput-container:
 	rm -f singularity/$(APP).img.xz

@@ -10,13 +10,25 @@ From: ubuntu:latest
     mount --no-mtab --bind `pwd` "$SINGULARITY_ROOTFS/muscope-18SV4"
 
 %environment
-    PATH=/app/fastq-join:/app/fastxtk:$PATH
+    PATH=/app/FastQC:$PATH
 
 %post
 
     apt update
     apt install -y apt-utils
     apt install -y git wget zip bzip2 python3-dev python3-pip
+
+    # apt fastqc installation is not complete
+    # /etc/fastqc/Configuration is not set up
+    #apt install -y fastqc
+
+    mkdir /app
+
+    # install fastqc
+    cd /app
+    wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.5.zip
+    unzip fastqc_v0.11.5.zip
+    chmod a+x FastQC/fastqc
 
     export LC_ALL=C
     /usr/bin/pip3 install --upgrade pip

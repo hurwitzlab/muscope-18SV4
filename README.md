@@ -4,11 +4,27 @@
 
 A CyVerse application implementing "Microbial eukaryotic 18S tag-sequence processing/QC - V4 region" as described by https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn.
 
+## Usage
+
+This pipeline can be used in three ways:
+  + as a [Python](https://www.python.org/) application (local or remote)
+  + as a [Singularity](http://singularity.lbl.gov/) container (local or remote)
+  + as a [CyVerse](http://www.cyverse.org/) application (remote)
+
 ## Requirements
-This application uses Python 2.7, QIIME, fastq-join, and vsearch.
-QIIME and additional Python dependencies should be installed in a Python 2 virtual environment.
-Within the CyVerse application the virtual environment is called 'mu18SV4'.
-Here is one way to create the necessary virtual environment using the Anaconda Python distribution:
+
+Installing and running this pipeline as a simple application requires Python 3.5+,
+[Trimmomatic](http://www.usadellab.org/cms/index.php?page=trimmomatic),
+[fastq-join](https://expressionanalysis.github.io/ea-utils/), and
+[FASTX-Toolkit](http://hannonlab.cshl.edu/fastx_toolkit/).
+
+Installing and running this pipeline as a Singularity container requires only the
+Singularity software and sudo permission on a Linux system.
+
+Using the CyVerse app requires a CyVerse account and membership in the muSCOPE
+group. Contact someone.
+
+## Installation
 
 ```
 $ cd muscope-18SV4

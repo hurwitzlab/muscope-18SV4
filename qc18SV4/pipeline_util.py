@@ -1,7 +1,22 @@
 import gzip
 import logging
+from operator import attrgetter
 import os.path
 import shutil
+
+
+def get_sorted_file_list(dir_path):
+    return tuple(
+        sorted(
+            [
+                entry
+                for entry
+                in os.scandir(dir_path)
+                if entry.is_file()
+            ],
+        key=attrgetter('name')
+        )
+    )
 
 
 def delete_files(*fp_list):
