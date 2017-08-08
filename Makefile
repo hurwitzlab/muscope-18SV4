@@ -17,7 +17,7 @@ apps-addupdate:
 deploy-app: clean files-delete files-upload apps-addupdate
 
 test:
-	sbatch test.sh
+	sbatch stampede/test.sh
 
 jobs-submit:
 	jobs-submit -F stampede/job.json
@@ -38,3 +38,9 @@ iget-container:
 	xz --decompress --force --keep $(APP).img.xz
 	mv $(APP).img singularity/
 	mv $(APP).img.xz stampede/
+
+lytic-rsync-dry-run:
+	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/muscope-18SV4
+
+lytic-rsync:
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/muscope-18SV4

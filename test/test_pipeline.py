@@ -1,3 +1,4 @@
+import glob
 import gzip
 import logging
 import os
@@ -54,6 +55,24 @@ def write_test_input(input_dir, file_name, content):
     return fp
 
 
+def check_for_fastq_results(output_dir):
+    # are the FastQC files there?
+    fastqc_output_dir = os.path.join(output_dir, 'fastqc_results')
+    assert os.path.exists(fastqc_output_dir)
+    assert os.path.isdir(fastqc_output_dir)
+    # there is not an html file for a fastq file
+    # if the fastq file is empty, but there is a zip
+    fastqc_output_file_glob = os.path.join(fastqc_output_dir, '*.zip')
+    fastqc_output_file_list = sorted(glob.glob(fastqc_output_file_glob))
+    print(fastqc_output_dir)
+    print('\n'.join(fastqc_output_file_list))
+    fastq_file_glob = os.path.join(output_dir, '*.fastq.gz')
+    fastq_file_list = glob.glob(fastq_file_glob)
+    print('\n'.join(fastq_file_list))
+    # two output files for each input plus log file
+    assert len(fastqc_output_file_list) == len(fastq_file_list)
+
+
 def test_step_01_trim_primers():
     with tempfile.TemporaryDirectory() as input_dir, tempfile.TemporaryDirectory() as work_dir:
 
@@ -96,6 +115,8 @@ def test_step_01_trim_primers():
         with gzip.open(reverse_output_fp, 'rt') as reverse_output:
             assert reverse_output.read() == '@read_1 reverse\n{}\n+\n{}\n'.format(reverse_read, reverse_qual)
 
+        check_for_fastq_results(output_dir)
+
 
 def test_step_02_join_paired_end_reads():
     """
@@ -130,6 +151,8 @@ def test_step_02_join_paired_end_reads():
         assert output_file_list[2].name == 'unittest.trim.un1.fastq.gz'
         assert output_file_list[3].name == 'unittest.trim.un2.fastq.gz'
 
+        check_for_fastq_results(output_dir)
+
 
 def test_step_03_quality_filter():
     with tempfile.TemporaryDirectory() as input_dir, tempfile.TemporaryDirectory() as work_dir:
@@ -147,6 +170,8 @@ def test_step_03_quality_filter():
         assert output_file_list[0].name == 'log'
         assert output_file_list[1].name == 'unittest.trim.join.quality.fastq'
         assert output_file_list[2].name == 'unittest.trim.join.quality.fastq.gz'
+
+        check_for_fastq_results(output_dir)
 
 
 def test_step_04_fasta_format():

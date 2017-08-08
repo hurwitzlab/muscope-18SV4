@@ -109,28 +109,34 @@ class Pipeline:
 
 
     def complete_step(self, log, output_dir):
-        output_dir_list = sorted(os.listdir(output_dir))
+        output_fasta_fastq_file_glob = os.path.join(output_dir, '*.fast[aq].gz')
+        output_dir_list = sorted(glob.glob(output_fasta_fastq_file_glob))
         if len(output_dir_list) == 0:
-            raise PipelineException('ERROR: no output files in directory "{}"'.format(output_dir))
+            raise PipelineException('ERROR: no FASTA or FASTQ files in directory "{}"'.format(output_dir))
         else:
             log.info('output files:\n\t%s', '\n\t'.join(os.listdir(output_dir)))
-            # apply FastQC to all .fastq and .fasta files
-            fastqc_output_dir = os.path.join(output_dir, 'fastqc_results')
-            os.makedirs(fastqc_output_dir, exist_ok=True)
-            run_cmd(
-                [
-                    'fastqc',
-                    '--threads', str(self.core_count),
-                    '--outdir', fastqc_output_dir,
-                    *[
-                        os.path.abspath(os.path.join(output_dir, output_file))
-                        for output_file
-                        in output_dir_list
-                        if re.search(pattern=r'\.fast[aq](\.gz)?$', string=output_file)
-                    ]
-                ],
-                log_file=os.path.join(fastqc_output_dir, 'log')
-            )
+            # apply FastQC to all .fastq files
+            fastq_output_file_list = [
+                output_file
+                for output_file
+                in output_dir_list
+                if re.search(pattern=r'\.fastq(\.gz)?$', string=output_file)
+            ]
+
+            if len(fastq_output_file_list) == 0:
+                log.info('no FASTQ files')
+            else:
+                fastqc_output_dir = os.path.join(output_dir, 'fastqc_results')
+                os.makedirs(fastqc_output_dir, exist_ok=True)
+                run_cmd(
+                    [
+                        'fastqc',
+                        '--threads', str(self.core_count),
+                        '--outdir', fastqc_output_dir,
+                        *fastq_output_file_list
+                    ],
+                    log_file=os.path.join(fastqc_output_dir, 'log')
+                )
 
     def step_01_trim_primers(self):
         log, output_dir = self.initialize_step()
