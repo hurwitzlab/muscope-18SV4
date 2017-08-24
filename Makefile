@@ -40,7 +40,7 @@ iget-container:
 	mv $(APP).img.xz stampede/
 
 lytic-rsync-dry-run:
-	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/muscope-18SV4
+	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/$(APP)
 
 lytic-rsync:
-	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/muscope-18SV4
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc.arizona.edu ssh -A -t lytic" ./ :project/muscope/apps/$(APP)
