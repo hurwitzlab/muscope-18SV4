@@ -28,6 +28,7 @@ From: ubuntu:latest
     cd /app
     wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.5.zip
     unzip fastqc_v0.11.5.zip
+    rm fastqc_v0.11.5.zip
     chmod a+x FastQC/fastqc
 
     export LC_ALL=C
