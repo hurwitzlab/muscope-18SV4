@@ -55,7 +55,7 @@ Installing and running this pipeline as a simple application requires
 
 ### Installation
 
-It is recommended that a the Python application be installed in a Python virtual environment. If Python 3.6 or later is available then a virtual environment can be created like this:
+It is recommended that the Python application be installed in a Python virtual environment. If Python 3.6 or later is available then a virtual environment can be created like this:
 
 ```
 $ python3 -m venv mu
