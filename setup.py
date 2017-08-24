@@ -76,7 +76,6 @@ setup(
         'numpy',
         'biopython',
         'cutadapt',
-        'qiime',
         'matplotlib',
         'subprocess32'
     ],
