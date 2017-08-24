@@ -15,28 +15,32 @@ This pipeline can be used in three ways:
 In all cases the following command line arguments must be specified:
 
   #### -f FORWARD_READS_FP
-  File path to a FASTQ file of forward reads. The corresponding file of reverse reads should also be in the same directory.
+  > File path to a FASTQ file of forward reads. The corresponding file of reverse reads should also be in the same directory.
 
   #### -w WORK_DP
-  Directory path for all output. The work directory will be created if it does not exist.
+  > Directory path for all output. The work directory will be created if it does not exist.
 
   #### -c CORE_COUNT
-  Number of cores to use. Specify at least 1.
+  > Number of cores to use. Specify at least 1.
 
   #### -p PREFIX_REGEX
-  Regular expression that will match the forward and reverse read file prefix. For example `^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]` will identify 'Test001' as the prefix in the file name 'Test001_L001_R1_001.fastq'. Use a regular expression tool such as [Pythex](https://pythex.org/) to verify your regular expression will work with your files.
+  > Regular expression that will match the forward and reverse read file prefix. For example the regular expression
+  
+  > ^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]
+  
+  > will identify `Test001` as the prefix in the file name `Test001_L001_R1_001.fastq`. Use a regular expression tool such as [Pythex](https://pythex.org/) to verify your regular expression will work with your files.
 
   #### --forward-primer
-  Forward primer to be removed.
+  > Forward primer to be removed.
   
   #### --reverse-primer
-  Reverse primer to be removed.
+  > Reverse primer to be removed.
   
   #### --min-overlap
-  Minimum overlap for joining paired end reads.
+  > Minimum overlap for joining paired end reads.
     
   #### --phred
-  PHRED format of the input files. Specify 33 or 64.
+  > PHRED format of the input files. Specify 33 or 64.
 
 ## Python Application
 
