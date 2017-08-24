@@ -58,6 +58,8 @@ $ python3 -m venv mu
 $ source mu/bin/activate
 (mu) $ pip install git+https://github.com/hurwitzlab/muscope-18SV4.git
 ```
+The last line installs the application in the virtual environment.
+
 
 If Python 3.6 or later is not available then the Anaconda Python distribution can be installed to provide Python 3.6 and a virtual environment can be created like this:
 
@@ -66,13 +68,14 @@ $ conda create -n mu numpy
 $ source activate mu
 (mu) $ pip install git+https://github.com/hurwitzlab/muscope-18SV4.git
 ```
+The last line installs the application in the virtual environment.
 
 ### Usage
 
 Once the Python application has been installed it can be run from the command line like this:
 
 ```
-(mu) vagrant@vagrant:~$ pipeline
+(mu) $ pipeline
 usage: pipeline [-h] -f FORWARD_READS_FP -w WORK_DP -c CORE_COUNT -p
                 PREFIX_REGEX [--forward-primer FORWARD_PRIMER]
                 [--reverse-primer REVERSE_PRIMER] [--min-overlap MIN_OVERLAP]
