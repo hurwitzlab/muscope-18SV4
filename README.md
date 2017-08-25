@@ -58,7 +58,7 @@ Installing and running this pipeline as a simple application requires
 Installing QIIME is not a trivial exercise. The recommended method (see [here](http://qiime.org/install/install.html)) is to use Miniconda. Once Miniconda is installed follow these steps:
 
 ```
-$ conda create -n mu python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda fastq-join=1.3.1
+$ conda create -n mu python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda -c fastq-join=1.3.1
 $ souce activate mu
 (mu) $ pip install git+https://github.com/hurwitzlab/muscope-18SV4.git
 ```
