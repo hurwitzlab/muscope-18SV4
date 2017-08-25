@@ -38,9 +38,6 @@ In all cases the following command line arguments must be specified:
   
   #### --min-overlap
   > Minimum overlap for joining paired end reads.
-    
-  #### --phred
-  > PHRED format of the input files. Specify 33 or 64.
 
 ## Python Application
 
@@ -73,7 +70,6 @@ Once the Python application has been installed it can be run from the command li
 usage: pipeline [-h] -f FORWARD_READS_FP -w WORK_DP -c CORE_COUNT -p
                 PREFIX_REGEX [--forward-primer FORWARD_PRIMER]
                 [--reverse-primer REVERSE_PRIMER] [--min-overlap MIN_OVERLAP]
-                [--phred PHRED]
 ```
 
 ## Singularity Container
