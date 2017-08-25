@@ -32,13 +32,13 @@ In all cases the following command line arguments must be specified:
 
   #### --forward-primer
   > Forward primer to be removed.
-  
+
   #### --reverse-primer
   > Reverse primer to be removed.
-  
+
   #### --min-overlap
   > Minimum overlap for joining paired end reads.
-    
+
   #### --phred
   > PHRED format of the input files. Specify 33 or 64.
 
@@ -121,4 +121,3 @@ The command line arguments are the same as for the stand-alone Python program.
 
 Using the CyVerse app requires a CyVerse account and membership in the muSCOPE
 group.
-
