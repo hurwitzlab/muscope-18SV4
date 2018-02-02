@@ -4,6 +4,8 @@
 
 A CyVerse application implementing "Microbial eukaryotic 18S tag-sequence processing/QC - V4 region" as described by https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn.
 
+Also see [Sarah Hu's description](https://github.com/shu251/QC_steps_V4_tagsequencing) of the pipeline.
+
 ## Usage
 
 This pipeline can be used in three ways:
@@ -26,7 +28,7 @@ In all cases the following command line arguments must be specified:
   #### -p PREFIX_REGEX
   > Regular expression that will match the forward and reverse read file prefix. For example the regular expression
   >
-  > ^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]
+  > `^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]`
   >
   > will identify `Test001` as the prefix in the file name `Test001_L001_R1_001.fastq`. Use a regular expression tool such as [Pythex](https://pythex.org/) to verify your regular expression will work with your files.
 
