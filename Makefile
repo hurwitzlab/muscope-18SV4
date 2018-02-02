@@ -1,37 +1,59 @@
 APP = muscope-18SV4
-VERSION = 0.0.2
+VERSION = 0.0.3
 EMAIL = jklynch@email.arizona.edu
 
 clean:
-	find . \( -name \*.conf -o -name \*.out -o -name \*.log -o -name \*.param -o -name *_launcher_jobfile\* \) -exec rm {} \;
+	find . \( -name \*.conf -o -name \*.out -o -name \*.log -o -name \*.param -o -name launcher_jobfile_\* \) -exec rm {} \;
 
-files-delete:
-	files-delete $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
+container:
+	rm -f stampede2/$(APP).img
+	sudo singularity create --size 1000 stampede2/$(APP).img
+	sudo singularity bootstrap stampede2/$(APP).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def stampede2/$(APP).img
 
-files-upload:
-	files-upload -F stampede/ $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
+iput-container:
+	iput -fK stampede2/$(APP).img
 
-apps-addupdate:
-	apps-addupdate -F stampede/app.json
-
-deploy-app: clean files-delete files-upload apps-addupdate
+iget-container:
+	iget -fK $(APP).img
+	mv $(APP).img stampede2/
+	irm $(APP).img
 
 test:
 	sbatch test.sh
 
-jobs-submit:
-	jobs-submit -F stampede/job.json
+submit-test-job:
+	jobs-submit -F stampede2/job.json
 
-container:
-	rm -f singularity/muscope-18SV4.img
-	sudo singularity create --size 2048 singularity/muscope-18SV4.img
-	sudo singularity bootstrap singularity/muscope-18SV4.img singularity/muscope-18SV4.def
+submit-public-test-job:
+	jobs-submit -F stampede2/public-job.json
 
-iput-container:
-	irm muscope-18SV4.img
-	iput -K singularity/muscope-18SV4.img
+files-delete:
+	files-delete -f $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
 
-iget-container:
-	iget -K muscope-18SV4.img
-	mv muscope-18SV4.img stampede/
+files-upload:
+	files-upload -F stampede2/ $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
 
+apps-addupdate:
+	apps-addupdate -F stampede2/app.json
+
+deploy-app: clean files-delete files-upload apps-addupdate
+
+share-app:
+	systems-roles-addupdate -v -u <share-with-user> -r USER tacc-stampede2-$(CYVERSEUSERNAME)
+	apps-pems-update -v -u <share-with-user> -p READ_EXECUTE $(APP)-$(VERSION)
+
+lytic-rsync-dry-run:
+	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/imicrobe/apps/$(APP)
+
+lytic-rsync:
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/imicrobe/apps/$(APP)
+
+lytic-rsync-direct:
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t lytic" ./ :project/imicrobe/apps/$(APP)
+
+stampede2-rsync-dry-run:
+	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t stampede2" ./ :project/imicrobe/apps/$(APP)
+
+stampede2-rsync:
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t stampede2" ./ :project/imicrobe/apps/$(APP)

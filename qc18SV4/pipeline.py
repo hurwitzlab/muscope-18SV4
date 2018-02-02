@@ -122,7 +122,7 @@ class Pipeline:
     def step_01_join_paired_end_reads(self, output_dp):
         output_dir = create_output_dir(output_dp, sys._getframe().f_code.co_name)
 
-        print('begin joined paired ends step')
+        print('begin join paired ends step')
         reverse_fp = get_reverse_reads_fp(self.forward_reads_fp)
         run_cmd([
             'fastq-join',
@@ -131,7 +131,7 @@ class Pipeline:
             reverse_fp,
             '-o', os.path.join(output_dir, 'fastqjoin.%.fastq')]
         )
-        print('end joined paired ends step')
+        print('end join paired ends step')
 
         joined_reads_fp = os.path.abspath(os.path.join(output_dir, 'fastqjoin.join.fastq'))
         if not os.path.expanduser(joined_reads_fp):

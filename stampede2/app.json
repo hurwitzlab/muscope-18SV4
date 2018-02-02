@@ -1,0 +1,90 @@
+{
+  "available": true,
+  "checkpointable": false,
+  "defaultMemoryPerNode": 1,
+  "defaultProcessorsPerNode": 1,
+  "defaultMaxRunTime": "12:00:00",
+  "defaultNodeCount": 1,
+  "defaultQueue": "skx-normal",
+  "deploymentPath": "jklynch/applications/muscope-18SV4-0.0.3/stampede",
+  "deploymentSystem": "data.iplantcollaborative.org",
+  "executionSystem": "tacc-stampede2-jklynch",
+  "executionType": "HPC",
+  "helpURI": "https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn",
+  "label": "muSCOPE 18S V4 QC",
+  "longDescription": "muSCOPE 18S V4 QC",
+  "modules": [],
+  "name": "muSCOPE-18SV4",
+  "ontology": [
+    "http://sswapmeet.sswap.info/agave/apps/Application"
+  ],
+  "parallelism": "SERIAL",
+  "shortDescription": "muSCOPE 18S V4 QC",
+  "tags": [
+    "muscope",
+    "18S",
+    "V4",
+    "QC"
+  ],
+  "templatePath": "template.sh",
+  "testPath": "test.sh",
+  "version": "0.0.3",
+  "inputs": [
+    {
+      "id": "INPUT_DIR",
+      "value": {
+        "default": "this is needed",
+        "required": true,
+        "visible": true
+      },
+      "semantics": {
+        "fileTypes": [
+          "raw-0"
+        ]
+      },
+      "details": {
+        "description": "Directory of forward and reverse reads",
+        "label": "Input directory (forward AND reverse reads)",
+        "argument": "",
+        "showArgument": true
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "id": "forward_primer",
+      "value": {
+        "default": "CCAGCASCYGCGGTAATTCC",
+        "required": true,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--forward-primer",
+        "description": "forward primer",
+        "label": "forward primer",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "reverse_primer",
+      "value": {
+        "default": "TYRATCAAGAACGAAAGT",
+        "required": true,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--reverse-primer",
+        "description": "reverse primer",
+        "label": "reverse primer",
+        "showArgument": true
+      }
+    }
+  ],
+  "outputs": []
+}
