@@ -18,7 +18,7 @@ install:
 script:
   - pwd
   - ls -l
-  - singularity exec singularity/muscope-18SV4.img py.test test/ --uchime-ref-db-fp /mu18SV4/pr2/pr2_gb203/pr2_gb203_version_4.5.fasta
+  - singularity exec stampede2/muscope-18SV4.img py.test test/ --uchime-ref-db-fp /mu18SV4/pr2/pr2_gb203/pr2_gb203_version_4.5.fasta
 notifications:
   email:
     on_success: always
