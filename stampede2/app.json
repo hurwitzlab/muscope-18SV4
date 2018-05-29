@@ -6,7 +6,7 @@
   "defaultMaxRunTime": "12:00:00",
   "defaultNodeCount": 1,
   "defaultQueue": "skx-normal",
-  "deploymentPath": "jklynch/applications/muscope-18SV4-2.0.0/stampede",
+  "deploymentPath": "jklynch/applications/muscope-18SV4-2.0.2/stampede",
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede2-jklynch",
   "executionType": "HPC",
@@ -28,7 +28,7 @@
   ],
   "templatePath": "template.sh",
   "testPath": "test.sh",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "inputs": [
     {
       "id": "INPUT_DIR",
