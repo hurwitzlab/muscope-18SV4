@@ -1,6 +1,6 @@
 {
   "name": "muscope-18SV4-public-test",
-  "appId": "muSCOPE-Caron-18S-V4-Diversity-TagSeqQC-2.0.0u1",
+  "appId": "muSCOPE-Caron-18S-V4-Diversity-TagSeqQC-2.0.2u1",
   "archive": true,
   "inputs": {
     "INPUT_DIR": "agave://data.iplantcollaborative.org/shared/imicrobe/test/apps/muscope-18SV4"

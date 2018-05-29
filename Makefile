@@ -1,5 +1,5 @@
 APP = muscope-18SV4
-VERSION = 2.0.0
+VERSION = 2.0.2
 EMAIL = jklynch@email.arizona.edu
 
 clean:
@@ -7,39 +7,16 @@ clean:
 
 container:
 	rm -f stampede2/$(APP).img
-	sudo singularity create --size 1000 stampede2/$(APP).img
-	sudo singularity bootstrap stampede2/$(APP).img singularity/$(APP).def
-	sudo chown --reference=singularity/$(APP).def stampede2/$(APP).img
+	sudo singularity create --size 2000 singularity/$(APP).img
+	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def singularity/$(APP).img
 
 iput-container:
-	iput -fK stampede2/$(APP).img
+	iput -fK singularity/$(APP).img
 
 iget-container:
 	iget -fK $(APP).img
-	mv $(APP).img stampede2/
-	irm $(APP).img
-
-test:
-	sbatch test.sh
-
-submit-test-job:
-	jobs-submit -F stampede2/job.json
-
-submit-public-test-job:
-	jobs-submit -F stampede2/public-job.json
-
-container:
-	rm -f stampede2/$(APP).img
-	sudo singularity create --size 2000 stampede2/$(APP).img
-	sudo singularity bootstrap stampede2/$(APP).img singularity/$(APP).def
-	sudo chown --reference=singularity/$(APP).def stampede2/$(APP).img
-
-iput-container:
-	iput -fK stampede2/$(APP).img
-
-iget-container:
-	iget -fK $(APP).img
-	mv $(APP).img stampede2/
+	mv $(APP).img singularity/
 	irm $(APP).img
 
 test:
