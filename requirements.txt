@@ -1,9 +1,0 @@
-numpy
-biopython
-cutadapt
-qiime
-matplotlib
-mock
-nose
-pytest
-subprocess32

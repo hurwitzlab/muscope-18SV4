@@ -1,5 +1,5 @@
 APP = muscope-18SV4
-VERSION = 0.0.3
+VERSION = 2.0.0
 EMAIL = jklynch@email.arizona.edu
 
 clean:
@@ -28,6 +28,29 @@ submit-test-job:
 submit-public-test-job:
 	jobs-submit -F stampede2/public-job.json
 
+container:
+	rm -f stampede2/$(APP).img
+	sudo singularity create --size 2000 stampede2/$(APP).img
+	sudo singularity bootstrap stampede2/$(APP).img singularity/$(APP).def
+	sudo chown --reference=singularity/$(APP).def stampede2/$(APP).img
+
+iput-container:
+	iput -fK stampede2/$(APP).img
+
+iget-container:
+	iget -fK $(APP).img
+	mv $(APP).img stampede2/
+	irm $(APP).img
+
+test:
+	sbatch test.sh
+
+submit-test-job:
+	jobs-submit -F stampede2/job.json
+
+submit-public-test-job:
+	jobs-submit -F stampede2/job-public.json
+
 files-delete:
 	files-delete -f $(CYVERSEUSERNAME)/applications/$(APP)-$(VERSION)
 
@@ -44,16 +67,10 @@ share-app:
 	apps-pems-update -v -u <share-with-user> -p READ_EXECUTE $(APP)-$(VERSION)
 
 lytic-rsync-dry-run:
-	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/imicrobe/apps/$(APP)
+	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/muscope/apps/$(APP)
 
 lytic-rsync:
-	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/imicrobe/apps/$(APP)
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t hpc ssh -A -t lytic" ./ :project/muscope/apps/$(APP)
 
 lytic-rsync-direct:
-	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t lytic" ./ :project/imicrobe/apps/$(APP)
-
-stampede2-rsync-dry-run:
-	rsync -n -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t stampede2" ./ :project/imicrobe/apps/$(APP)
-
-stampede2-rsync:
-	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t stampede2" ./ :project/imicrobe/apps/$(APP)
+	rsync -arvzP --delete --exclude-from=rsync.exclude -e "ssh -A -t lytic" ./ :project/muscope/apps/$(APP)

@@ -1,6 +1,6 @@
 # muscope-18SV4
 
-[![Build Status](https://travis-ci.org/hurwitzlab/muscope-18SV4.svg?branch=master)](https://travis-ci.org/hurwitzlab/muscope-18SV4)
+[![Build Status](https://travis-ci.org/hurwitzlab/muscope-18SV4.svg?branch=develop)](https://travis-ci.org/hurwitzlab/muscope-18SV4)
 
 A CyVerse application implementing "Microbial eukaryotic 18S tag-sequence processing/QC - V4 region" as described by https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn.
 
@@ -34,12 +34,15 @@ In all cases the following command line arguments must be specified:
 
   #### --forward-primer
   > Forward primer to be removed.
-  
+
   #### --reverse-primer
   > Reverse primer to be removed.
-  
+
   #### --min-overlap
   > Minimum overlap for joining paired end reads.
+
+  #### --phred
+  > PHRED format of the input files. Specify 33 or 64.
 
 ## Python Application
 
@@ -47,18 +50,28 @@ In all cases the following command line arguments must be specified:
 
 Installing and running this pipeline as a simple application requires
 
-  + Python 2.7
-  + [QIIME](http://qiime.org)
+  + Python 3.6 or later
+  + [Trimmomatic](http://www.usadellab.org/cms/index.php?page=trimmomatic)
   + [fastq-join](https://expressionanalysis.github.io/ea-utils/)
-  + [vsearch](https://github.com/torognes/vsearch)
+  + [FASTX-Toolkit](http://hannonlab.cshl.edu/fastx_toolkit/)
 
 ### Installation
 
-Installing QIIME is not a trivial exercise. The recommended method (see [here](http://qiime.org/install/install.html)) is to use Miniconda. Once Miniconda is installed follow these steps:
+It is recommended that the Python application be installed in a Python virtual environment. If Python 3.6 or later is available then a virtual environment can be created like this:
 
 ```
-$ conda create -n mu python=2.7 qiime matplotlib=1.4.3 mock nose -c bioconda -c fastq-join=1.3.1
-$ souce activate mu
+$ python3 -m venv mu
+$ source mu/bin/activate
+(mu) $ pip install git+https://github.com/hurwitzlab/muscope-18SV4.git
+```
+The last line installs the application in the virtual environment.
+
+
+If Python 3.6 or later is not available then the Anaconda Python distribution can be installed to provide Python 3.6 and a virtual environment can be created like this:
+
+```
+$ conda create -n mu numpy
+$ source activate mu
 (mu) $ pip install git+https://github.com/hurwitzlab/muscope-18SV4.git
 ```
 The last line installs the application in the virtual environment.

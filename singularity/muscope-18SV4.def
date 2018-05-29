@@ -1,76 +1,57 @@
 Bootstrap: docker
 From: ubuntu:latest
 
+%runscript
+
+    pipeline $@
+
 %setup
     mkdir "$SINGULARITY_ROOTFS/muscope-18SV4"
     mount --no-mtab --bind `pwd` "$SINGULARITY_ROOTFS/muscope-18SV4"
 
+%environment
+    PATH=/app/FastQC:$PATH
+
 %post
 
-   apt update
-   apt install -y git wget zip python-dev python-pip python-tk
+    apt update
+    apt install -y apt-utils
+    apt install -y git wget zip bzip2 python3-dev python3-pip
 
-   # set LC_ALL for pip
-   # see http://stackoverflow.com/questions/36394101/pip-install-locale-error-unsupported-locale-setting
-   export LC_ALL=C
-   /usr/bin/pip install --upgrade pip
+    # apt fastqc installation is not complete
+    # /etc/fastqc/Configuration is not set up
+    #apt install -y fastqc
 
-   # pycogent (QIIME dependency) refuses to install if numpy is not already installed
-   # installing numpy first solves that problem
-   /usr/bin/pip install numpy
+    mkdir /app
 
-   /usr/bin/pip install /muscope-18SV4[dev,test]
+    # install fastqc
+    cd /app
+    wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.5.zip
+    unzip fastqc_v0.11.5.zip
+    rm fastqc_v0.11.5.zip
+    chmod a+x FastQC/fastqc
 
-   # create a directory for installed dependencies
-   APP_DIR=/mu18SV4
-   mkdir -p $APP_DIR
-   cd $APP_DIR
+    export LC_ALL=C
+    /usr/bin/pip3 install --upgrade pip
+    # biopython wants numpy already installed why?
+    /usr/bin/pip3 install numpy
+    /usr/bin/pip3 install /muscope-18SV4[dev,test]
 
-   # install fastq-join
-   git clone https://github.com/brwnj/fastq-join
-   cd fastq-join
-   make
-   ls -l
-   FASTQ_JOIN_PATH=$APP_DIR/fastq-join
-   PATH=$FASTQ_JOIN_PATH:$PATH
-   echo "installed fastq-join"
-   echo "  PATH=$PATH"
+    # install trimmomatic
+    apt install -y trimmomatic
 
-   # install vsearch
-   cd $APP_DIR
-   wget https://github.com/torognes/vsearch/releases/download/v2.4.3/vsearch-2.4.3-linux-x86_64.tar.gz -O /tmp/vsearch.tar.gz
-   tar xzf /tmp/vsearch.tar.gz
-   rm /tmp/vsearch.tar.gz
-   mv $APP_DIR/vsearch-2.4.3-linux-x86_64 $APP_DIR/vsearch
-   VSEARCH_PATH=$APP_DIR/vsearch/bin
-   PATH=$VSEARCH_PATH:$PATH
-   echo "installed vsearch at $VSEARCH_PATH"
-   echo "  PATH=$PATH"
+    # install fastx-toolkit
+    apt install -y fastx-toolkit
 
-   # install PR2
-   mkdir /mu18SV4/pr2
-   cd /mu18SV4/pr2
-   wget https://ndownloader.figshare.com/files/7381369 -O pr2_gb203_version_4.5.zip
-   unzip pr2_gb203_version_4.5.zip
-   rm pr2_gb203_version_4.5.zip
-   export PR2_PATH=`pwd`
-   echo "installed PR2 at $PR2_DIR"
+    # install ea-utils to get fastq-join
+    apt install -y ea-utils
 
-   # add environment variables to /environment file
-   echo "\nexport PATH=$FASTQ_JOIN_PATH:$VSEARCH_PATH:\$PATH" >> /environment
-
-   # create mount points for TACC directories
-   mkdir /home1
-   mkdir /scratch
-   mkdir /work
+    # create mount points for TACC directories
+    mkdir /home1
+    mkdir /scratch
+    mkdir /work
 
 %test
-   . /environment
-   echo "PATH=${PATH}"
+    echo "PATH=${PATH}"
 
-   python --version
-   vsearch --version
-   which fastq-join
-   # fastq-join returns error when called with no arguments
-   # and has no -h or --help
-   #fastq-join
+    python3 --version

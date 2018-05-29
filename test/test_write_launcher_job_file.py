@@ -1,8 +1,10 @@
 import os
 import shutil
+import tempfile
 
 import pytest
 
+from qc18SV4.pipeline import PipelineException
 from qc18SV4.write_launcher_job_file import get_file_path_pairs, get_cores_per_job, write_launcher_job_file
 
 
@@ -73,6 +75,21 @@ def test_get_cores_per_job():
     assert get_cores_per_job(job_count=5, **two_nodes) == 6
 
 
+def test_no_files_found():
+    with tempfile.TemporaryDirectory() as input_dir, tempfile.TemporaryDirectory() as output_dir:
+        # no files in the input directory
+        with pytest.raises(PipelineException):
+            write_launcher_job_file(
+                job_fp=os.path.join(output_dir, 'launcher_job_file'),
+                input_dp=input_dir,
+                work_dp_template='unit-test-work-{prefix}',
+                forward_primer='ACGT',
+                reverse_primer='TGCA',
+                prefix_regex='^(?P<prefix>Test\d+)',
+                phred=33
+            )
+
+
 def test_write_launcher_job_file():
     os.environ['SLURM_JOB_NUM_NODES'] = str(1)
     os.environ['SLURM_NTASKS'] = str(8)
@@ -86,6 +103,11 @@ def test_write_launcher_job_file():
     os.mkdir(functional_test_dir)
 
     write_launcher_job_file(
-        os.path.join(functional_test_dir, '_functional_test_job_file'),
-        test_data_dir,
-        'unit-test-work-{prefix}')
+        job_fp=os.path.join(functional_test_dir, '_functional_test_job_file'),
+        input_dp=test_data_dir,
+        work_dp_template='unit-test-work-{prefix}',
+        forward_primer='ACGT',
+        reverse_primer='TGCA',
+        prefix_regex='^(?P<prefix>Test\d+)',
+        phred=33
+    )

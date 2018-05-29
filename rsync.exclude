@@ -2,9 +2,12 @@
 .DS_Store
 .idea
 .git
-.gitignore
 *.img*
 *.pyc
 __pycache__
 
-.ipynb_checkpoints/
+qc18SV4.egg-info
+
+test/output_container
+test/output_pipeline
+test/_functional_test_job_file
