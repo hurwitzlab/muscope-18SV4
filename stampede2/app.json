@@ -1,14 +1,14 @@
 {
   "available": true,
   "checkpointable": false,
-  "defaultMemoryPerNode": 32,
-  "defaultProcessorsPerNode": 16,
+  "defaultMemoryPerNode": 1,
+  "defaultProcessorsPerNode": 1,
   "defaultMaxRunTime": "12:00:00",
   "defaultNodeCount": 1,
-  "defaultQueue": "serial",
-  "deploymentPath": "jklynch/applications/muscope-18SV4-1.0.0/stampede",
+  "defaultQueue": "skx-normal",
+  "deploymentPath": "jklynch/applications/muscope-18SV4-2.0.0/stampede2",
   "deploymentSystem": "data.iplantcollaborative.org",
-  "executionSystem": "tacc-stampede-jklynch",
+  "executionSystem": "tacc-stampede2-jklynch",
   "executionType": "HPC",
   "helpURI": "https://www.protocols.io/view/microbial-eukaryotic-18s-tag-sequence-processing-q-g33byqn",
   "label": "muSCOPE Caron-18S-V4-Diversity-TagSeqQC",
@@ -29,7 +29,7 @@
   ],
   "templatePath": "template.sh",
   "testPath": "test.sh",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputs": [
     {
       "id": "INPUT_DIR",
@@ -56,7 +56,7 @@
       "id": "forward_primer",
       "value": {
         "default": "CCAGCASCYGCGGTAATTCC",
-        "required": true,
+        "required": false,
         "type": "string",
         "visible": true
       },
@@ -73,7 +73,7 @@
       "id": "reverse_primer",
       "value": {
         "default": "TYRATCAAGAACGAAAGT",
-        "required": true,
+        "required": false,
         "type": "string",
         "visible": true
       },
@@ -107,7 +107,7 @@
       "id": "phred",
       "value": {
         "default": "33",
-        "required": true,
+        "required": false,
         "type": "string",
         "visible": true
       },
@@ -123,7 +123,7 @@
      {
       "id": "core_count",
       "value": {
-        "default": "16",
+        "default": "48",
         "required": true,
         "type": "string",
         "visible": true

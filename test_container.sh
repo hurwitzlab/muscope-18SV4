@@ -3,7 +3,7 @@
 rm -rf test/output_container
 mkdir test/output_container
 
-time singularity run singularity/muscope-18SV4.img \
+time singularity run stampede2/muscope-18SV4.img \
   --forward-reads-fp ./test/data/Test01_L001_R1_001.fastq \
   --work-dp ./test/output_container/work \
   --core-count 2 \

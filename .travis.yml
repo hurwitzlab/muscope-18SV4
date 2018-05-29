@@ -4,7 +4,7 @@ dist: trusty
 before_install:
 - pwd
 - cd /tmp
-- git clone https://github.com/singularityware/singularity.git
+- git clone https://github.com/singularityware/singularity.git --branch 2.3.2
 - cd singularity
 - "./autogen.sh"
 - "./configure --prefix=/usr/local"

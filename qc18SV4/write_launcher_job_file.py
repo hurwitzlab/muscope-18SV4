@@ -44,7 +44,7 @@ def write_launcher_job_file(
 
     if len(forward_read_file_path_set) == 0:
         raise PipelineException('found no forward read files in directory "{}"'.format(input_dp))
-    # this script will run in muscope-18SV4/stampede but Launcher
+    # this script will run in muscope-18SV4/stampede2 but Launcher
     # jobs will run in the Launcher's work directory
     # so specify absolute paths
     singularity_container_fp = os.path.abspath('muscope-18SV4.img')
