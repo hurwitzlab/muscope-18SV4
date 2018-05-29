@@ -32,7 +32,8 @@ From: ubuntu:latest
     chmod a+x FastQC/fastqc
 
     export LC_ALL=C
-    /usr/bin/pip3 install --upgrade pip
+    # do not upgrade pip while 10.0 is broken
+    ##/usr/bin/pip3 install --upgrade pip
     # biopython wants numpy already installed why?
     /usr/bin/pip3 install numpy
     /usr/bin/pip3 install /muscope-18SV4[dev,test]
