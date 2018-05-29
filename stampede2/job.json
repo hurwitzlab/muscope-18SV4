@@ -1,12 +1,8 @@
 {
   "name": "muscope-18SV4-test",
-  "appId": "muSCOPE-Caron-18S-V4-Diversity-TagSeqQC-2.0.0",
+  "appId": "muscope-18SV4-2.0.0",
   "archive": true,
   "inputs": {
-    "INPUT_DIR": "agave://data.iplantcollaborative.org/shared/imicrobe/test/apps/muscope-18SV4"
-  },
-  "parameters": {
-    "core_count": 48,
-    "prefix_regular_expression": "\"^(?P<prefix>[a-zA-Z0-9_]+)_L001_R[12]\""
+    "INPUT_DIR": "/iplant/home/jklynch/data/muscope/18SV4/test-data"
   }
 }
