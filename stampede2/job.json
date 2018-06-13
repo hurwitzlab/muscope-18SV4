@@ -1,6 +1,6 @@
 {
   "name": "muscope-18SV4-test",
-  "appId": "muscope-18SV4-2.0.2",
+  "appId": "muscope-18SV4-2.0.0",
   "archive": true,
   "inputs": {
     "INPUT_DIR": "/iplant/home/jklynch/data/muscope/18SV4/test-data"
