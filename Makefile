@@ -1,12 +1,14 @@
 APP = muscope-18SV4
-VERSION = 2.0.2
+VERSION = 3.0.0
 EMAIL = jklynch@email.arizona.edu
 
 clean:
 	find . \( -name \*.conf -o -name \*.out -o -name \*.log -o -name \*.param -o -name launcher_jobfile_\* \) -exec rm {} \;
 
+container-minty:
+	sudo singularity build /home/jklynch/$(APP).img singularity/$(APP).def
+
 container:
-	rm -f stampede2/$(APP).img
 	sudo singularity create --size 2000 singularity/$(APP).img
 	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
 	sudo chown --reference=singularity/$(APP).def singularity/$(APP).img

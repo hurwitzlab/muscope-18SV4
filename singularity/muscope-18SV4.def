@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ubuntu:latest
+From: ubuntu:16.04
 
 %runscript
 
@@ -10,7 +10,7 @@ From: ubuntu:latest
     mount --no-mtab --bind `pwd` "$SINGULARITY_ROOTFS/muscope-18SV4"
 
 %environment
-    PATH=/app/FastQC:$PATH
+    PATH=/app/miniconda3/bin:/app/FastQC:$PATH
 
 %post
 
@@ -18,11 +18,28 @@ From: ubuntu:latest
     apt install -y apt-utils
     apt install -y git wget zip bzip2 python3-dev python3-pip
 
+    mkdir /app
+    cd /app
+
+    # install miniconda
+    wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda3.sh
+    chmod +x miniconda3.sh
+    ./miniconda3.sh -b -p /app/miniconda3
+    export PATH=/app/miniconda3/bin:$PATH
+    pwd
+    ls -l
+    conda update --yes conda
+    wget https://data.qiime2.org/distro/core/qiime2-2018.4-py35-linux-conda.yml
+    conda env create -n qiime2 --file qiime2-2018.4-py35-linux-conda.yml
+    ## why does this fail?
+    ## conda install --file qiime2-2018.4-py35-linux-conda.yml
+    # OPTIONAL CLEANUP
+    rm qiime2-2018.4-py35-linux-conda.yml
+    /app/miniconda3/bin/activate qiime2
+
     # apt fastqc installation is not complete
     # /etc/fastqc/Configuration is not set up
     #apt install -y fastqc
-
-    mkdir /app
 
     # install fastqc
     cd /app
@@ -55,4 +72,4 @@ From: ubuntu:latest
 %test
     echo "PATH=${PATH}"
 
-    python3 --version
+    #source /app/miniconda3/bin/activate qiime2
